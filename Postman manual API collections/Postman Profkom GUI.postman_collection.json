@@ -1,0 +1,4313 @@
+{
+  "info": {
+    "_postman_id": "cf777417-a643-40a7-bdbe-819acced0428",
+    "name": "Postman Profkom GUI",
+    "description": "Ручний прогін адмін-флоу у Postman UI: login -> create admin -> list admins -> edit admin -> new password check login -> delete admin -> list admins. Дані для create/edit генеруються рандомно під час прогону. Жодного DDT/CSV тут немає - для цього окремий файл \"Newman DDT\".",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53739024",
+    "_collection_link": "https://go.postman.co/collection/53739024-cf777417-a643-40a7-bdbe-819acced0428?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Token is present\", function () {",
+                  "    pm.expect(jsonResponse.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"token\", jsonResponse.token);",
+                  "pm.execution.setNextRequest(\"create admin\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin@gmail.com\",\n  \"password\": \"@Admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create admin",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const LATIN_LOWER = \"abcdefghijklmnopqrstuvwxyz\";",
+                  "const LATIN_UPPER = LATIN_LOWER.toUpperCase();",
+                  "const DIGITS = \"0123456789\";",
+                  "const SPECIAL = \"!@#$%^&*\";",
+                  "const DOMAINS = [\"gmail.com\", \"outlook.com\", \"ukr.net\", \"i.ua\", \"meta.ua\", \"test.ua\"];",
+                  "",
+                  "function randChar(pool) { return pool[Math.floor(Math.random() * pool.length)]; }",
+                  "function shuffle(chars) {",
+                  "    for (let i = chars.length - 1; i > 0; i--) {",
+                  "        const j = Math.floor(Math.random() * (i + 1));",
+                  "        [chars[i], chars[j]] = [chars[j], chars[i]];",
+                  "    }",
+                  "    return chars;",
+                  "}",
+                  "function generateUsername() {",
+                  "    const domain = DOMAINS[Math.floor(Math.random() * DOMAINS.length)];",
+                  "    const local = Math.random().toString(36).slice(2, 10);",
+                  "    const suffix = Math.random().toString(16).slice(2, 6);",
+                  "    return `${local}${suffix}@${domain}`;",
+                  "}",
+                  "function generatePassword(length) {",
+                  "    const chars = [randChar(LATIN_UPPER), randChar(LATIN_LOWER), randChar(DIGITS), randChar(SPECIAL)];",
+                  "    const pool = LATIN_LOWER + LATIN_UPPER + DIGITS + SPECIAL;",
+                  "    while (chars.length < length) chars.push(randChar(pool));",
+                  "    return shuffle(chars).join(\"\");",
+                  "}",
+                  "",
+                  "pm.collectionVariables.set(\"email\", generateUsername());",
+                  "pm.collectionVariables.set(\"password\", generatePassword(12));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "if(pm.response.message === \"OK\" && pm.response.code === 200)",
+                  "{",
+                  "    const schema = {",
+                  "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",",
+                  "  \"title\": \"Generated schema for Root\",",
+                  "  \"type\": \"object\",",
+                  "  \"properties\": {",
+                  "    \"message\": {",
+                  "      \"type\": \"string\"",
+                  "    },",
+                  "    \"id\": {",
+                  "      \"type\": \"number\"",
+                  "    },",
+                  "    \"username\": {",
+                  "      \"type\": \"string\"",
+                  "    },",
+                  "    \"role\": {",
+                  "      \"type\": \"string\"",
+                  "    }",
+                  "  },",
+                  "  \"required\": [",
+                  "    \"message\",",
+                  "    \"id\",",
+                  "    \"username\",",
+                  "    \"role\"",
+                  "  ]",
+                  "};",
+                  "}",
+                  "pm.test(\"Response matches JSON schema\", function () {",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Admin was created (id and username returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.username).to.eql(pm.collectionVariables.get(\"email\"));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"create_admin_check_username\", jsonResponse.username);",
+                  "pm.collectionVariables.set(\"create_edit_id\", jsonResponse.id);",
+                  "pm.collectionVariables.set(\"end\", 0);",
+                  "pm.execution.setNextRequest(\"list admins\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list admins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const admins = pm.response.json();",
+                  "const targetId = parseInt(pm.collectionVariables.get(\"create_edit_id\"), 10);",
+                  "const found = admins.find(a => a.id === targetId);",
+                  "const end = parseInt(pm.collectionVariables.get(\"end\"), 10) || 0;",
+                  "",
+                  "if (end === 0) {",
+                  "    pm.test(\"Щойно створений адмін присутній у списку\", function () {",
+                  "        pm.expect(found).to.not.be.undefined;",
+                  "    });",
+                  "    pm.execution.setNextRequest(\"edit admin\");",
+                  "} else {",
+                  "    pm.test(\"Видалений адмін відсутній у списку\", function () {",
+                  "        pm.expect(found).to.be.undefined;",
+                  "    });",
+                  "    pm.execution.setNextRequest(null);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/list",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "edit admin",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const LATIN_LOWER = \"abcdefghijklmnopqrstuvwxyz\";",
+                  "const LATIN_UPPER = LATIN_LOWER.toUpperCase();",
+                  "const DIGITS = \"0123456789\";",
+                  "const SPECIAL = \"!@#$%^&*\";",
+                  "",
+                  "function randChar(pool) { return pool[Math.floor(Math.random() * pool.length)]; }",
+                  "function shuffle(chars) {",
+                  "    for (let i = chars.length - 1; i > 0; i--) {",
+                  "        const j = Math.floor(Math.random() * (i + 1));",
+                  "        [chars[i], chars[j]] = [chars[j], chars[i]];",
+                  "    }",
+                  "    return chars;",
+                  "}",
+                  "function generatePassword(length) {",
+                  "    const chars = [randChar(LATIN_UPPER), randChar(LATIN_LOWER), randChar(DIGITS), randChar(SPECIAL)];",
+                  "    const pool = LATIN_LOWER + LATIN_UPPER + DIGITS + SPECIAL;",
+                  "    while (chars.length < length) chars.push(randChar(pool));",
+                  "    return shuffle(chars).join(\"\");",
+                  "}",
+                  "",
+                  "pm.collectionVariables.set(\"put_password\", generatePassword(12));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Пароль адміна змінено (id збігається)\", function () {",
+                  "    pm.expect(pm.response.json().id).to.eql(parseInt(pm.collectionVariables.get(\"create_edit_id\"), 10));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"check_edit_password\", pm.collectionVariables.get(\"put_password\"));",
+                  "pm.execution.setNextRequest(\"new password check login\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{put_password}}\",\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/edit/{{create_edit_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "edit",
+                "{{create_edit_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "new password check login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx (новий пароль підійшов)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Token is present\", function () {",
+                  "    pm.expect(jsonResponse.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.execution.setNextRequest(\"delete admin\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{create_admin_check_username}}\",\n  \"password\": \"{{check_edit_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"end\", 1);",
+                  "pm.execution.setNextRequest(\"list admins\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/delete/{{create_edit_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "delete",
+                "{{create_edit_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Department",
+      "item": [
+        {
+          "name": "Get documents",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response time is acceptable\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "const schema = {\r",
+                  "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\r",
+                  "  \"title\": \"Generated schema for Root\",\r",
+                  "  \"type\": \"object\",\r",
+                  "  \"properties\": {\r",
+                  "    \"id\": {\r",
+                  "      \"type\": \"number\"\r",
+                  "    },\r",
+                  "    \"title\": {\r",
+                  "      \"type\": \"string\"\r",
+                  "    },\r",
+                  "    \"description\": {},\r",
+                  "    \"filePath\": {\r",
+                  "      \"type\": \"string\"\r",
+                  "    },\r",
+                  "    \"fileSize\": {\r",
+                  "      \"type\": \"number\"\r",
+                  "    },\r",
+                  "    \"createdAt\": {\r",
+                  "      \"type\": \"string\"\r",
+                  "    },\r",
+                  "    \"updatedAt\": {}\r",
+                  "  },\r",
+                  "  \"required\": [\r",
+                  "    \"id\",\r",
+                  "    \"title\",\r",
+                  "    \"description\",\r",
+                  "    \"filePath\",\r",
+                  "    \"fileSize\",\r",
+                  "    \"createdAt\",\r",
+                  "    \"updatedAt\"\r",
+                  "  ]\r",
+                  "}\r",
+                  "pm.test(\"Response matches JSON schema\", function () {\r",
+                  "     pm.expect(pm.response.json()[0]).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  "pm.test(\"json body is an array\", () => {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "})\r",
+                  "pm.test(\"Status code is 2xx\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "",
+                  "type": "file",
+                  "uuid": "77750e37-4c4a-49a5-a677-129dbe6c2d68",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/documents",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "documents"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create documents",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  " "
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Document was created (id and title returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.title).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"doc_id\", pm.response.json().id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Title",
+                  "value": "{{$randomLoremSentence}}",
+                  "type": "text",
+                  "uuid": "fa5c0ec0-933c-45b8-92f8-045751625a63"
+                },
+                {
+                  "key": "File",
+                  "type": "file",
+                  "uuid": "2d331c56-b218-465b-bdef-ad728e5a4eb3",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/bike/bike_001.bmp"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/documents",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "documents"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get a specific document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned document matches the created one\", function () {",
+                  "    pm.expect(jsonResponse.id).to.eql(parseInt(pm.collectionVariables.get(\"doc_id\"), 10));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/documents/{{doc_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "documents",
+                "{{doc_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change document",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const docTitlePut = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "pm.collectionVariables.set(\"doc_title_put\", docTitlePut);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Document title was updated\", function () {",
+                  "    pm.expect(jsonResponse.title).to.eql(pm.collectionVariables.get(\"doc_title_put\"));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Title",
+                  "value": "{{doc_title_put}}",
+                  "type": "text",
+                  "uuid": "604939ea-9206-4a7f-992f-c34427cc0939"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/documents/{{doc_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "documents",
+                "{{doc_id}}"
+              ],
+              "query": [
+                {
+                  "key": "Title",
+                  "value": "{{$randomLoremSentence}}",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "File",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/documents/{{doc_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "documents",
+                "{{doc_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unit",
+      "item": [
+        {
+          "name": "get unit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an array\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"array\");",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Unit",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Unit"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create Unit",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const unitName = pm.variables.replaceIn(\"{{$randomProductName}}\");",
+                  "const unitContent = pm.variables.replaceIn(\"{{$randomLoremParagraph}}\");",
+                  "const unitOrder = pm.variables.replaceIn(\"{{$randomInt}}\");",
+                  "const unitActive = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"unit_name\", unitName);",
+                  "pm.collectionVariables.set(\"unit_content\", unitContent);",
+                  "pm.collectionVariables.set(\"unit_order\", unitOrder);",
+                  "pm.collectionVariables.set(\"unit_active\", unitActive);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Unit was created (id and name returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.name).to.eql(pm.collectionVariables.get(\"unit_name\"));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"unit_id\", jsonResponse.id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "{{unit_name}}",
+                  "type": "text",
+                  "uuid": "c9e4bf48-0470-44d6-a9c3-22e3222ede97"
+                },
+                {
+                  "key": "Content",
+                  "value": "{{unit_content}}",
+                  "type": "text",
+                  "uuid": "8dcdf586-5e4b-488f-a9dd-c6670152e78c"
+                },
+                {
+                  "key": "OrderInd",
+                  "value": "{{unit_order}}",
+                  "type": "text",
+                  "uuid": "807d0eb0-5a49-4aed-8611-1ef90fbbc1ec"
+                },
+                {
+                  "key": "IsActive",
+                  "value": "{{unit_active}}",
+                  "type": "text",
+                  "uuid": "0357bf32-13a0-4928-a286-95b77067bcdd"
+                },
+                {
+                  "key": "Image",
+                  "type": "file",
+                  "uuid": "c61cfb97-0d42-4c57-9bd7-cde8b919a8c2",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/cars/carsgraz_016.bmp"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Unit",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Unit"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get a specific unit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned unit matches the created one\", function () {",
+                  "    pm.expect(jsonResponse.id).to.eql(parseInt(pm.collectionVariables.get(\"unit_id\"), 10));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Unit/{{unit_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Unit",
+                "{{unit_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change a unit",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const unitNamePut = pm.variables.replaceIn(\"{{$randomProductName}}\");",
+                  "const unitContentPut = pm.variables.replaceIn(\"{{$randomLoremParagraph}}\");",
+                  "const unitOrderPut = pm.variables.replaceIn(\"{{$randomInt}}\");",
+                  "const unitActivePut = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"unit_name_put\", unitNamePut);",
+                  "pm.collectionVariables.set(\"unit_content_put\", unitContentPut);",
+                  "pm.collectionVariables.set(\"unit_order_put\", unitOrderPut);",
+                  "pm.collectionVariables.set(\"unit_active_put\", unitActivePut);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Unit name was updated\", function () {",
+                  "    pm.expect(jsonResponse.name).to.eql(pm.collectionVariables.get(\"unit_name_put\"));",
+                  "    pm.expect(jsonResponse.name).to.not.eql(pm.collectionVariables.get(\"unit_name\"));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "{{unit_name_put}}",
+                  "type": "text",
+                  "uuid": "cd29e6cb-b5ac-4f0c-b02c-7c7f09697ea7"
+                },
+                {
+                  "key": "Content",
+                  "value": "{{unit_content_put}}",
+                  "type": "text",
+                  "uuid": "574b0ec4-692f-45c7-911c-63424e56ce65"
+                },
+                {
+                  "key": "OrderInd",
+                  "value": "{{unit_order_put}}",
+                  "type": "text",
+                  "uuid": "95f7b44e-90ff-401b-af6e-083ceac576e8"
+                },
+                {
+                  "key": "IsActive",
+                  "value": "{{unit_active_put}}",
+                  "type": "text",
+                  "uuid": "c47a3fc3-3f5f-443e-9259-0ee74fc696fd"
+                },
+                {
+                  "key": "Image",
+                  "type": "file",
+                  "uuid": "26c7462f-ec8b-4e38-bf00-4732d09f4784",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/flowers/0025.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Unit/{{unit_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Unit",
+                "{{unit_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete a unit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Unit/{{unit_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Unit",
+                "{{unit_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team",
+      "item": [
+        {
+          "name": "Get team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an array\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"array\");",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Team",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Team"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create team member",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const LATIN_LOWER = \"abcdefghijklmnopqrstuvwxyz\";",
+                  "const LATIN_UPPER = LATIN_LOWER.toUpperCase();",
+                  "const DOMAINS = [\"gmail.com\", \"outlook.com\", \"ukr.net\", \"i.ua\", \"meta.ua\", \"test.ua\"];",
+                  "",
+                  "function generateUsername() {",
+                  "    const domain = DOMAINS[Math.floor(Math.random() * DOMAINS.length)];",
+                  "    const local = Math.random().toString(36).slice(2, 10);",
+                  "    const suffix = Math.random().toString(16).slice(2, 6);",
+                  "    return `${local}${suffix}@${domain}`;",
+                  "}",
+                  "",
+                  "const teamName = pm.variables.replaceIn(\"{{$randomFullName}}\");",
+                  "const teamPosition = pm.variables.replaceIn(\"{{$randomJobTitle}}\");",
+                  "const teamType = Math.floor(Math.random() * 3);",
+                  "const teamEmail = generateUsername();",
+                  "const teamOrder = pm.variables.replaceIn(\"{{$randomInt}}\");",
+                  "const teamTemporary = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "const teamChoosed = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"team_name\", teamName);",
+                  "pm.collectionVariables.set(\"team_position\", teamPosition);",
+                  "pm.collectionVariables.set(\"team_type\", teamType);",
+                  "pm.collectionVariables.set(\"team_email\", teamEmail);",
+                  "pm.collectionVariables.set(\"team_order\", teamOrder);",
+                  "pm.collectionVariables.set(\"team_temporary\", teamTemporary);",
+                  "pm.collectionVariables.set(\"team_choosed\", teamChoosed);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Team member was created (id and name returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.name).to.eql(pm.collectionVariables.get(\"team_name\"));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"member_id\", jsonResponse.id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "{{team_name}}",
+                  "type": "text",
+                  "uuid": "63141f25-3486-4b2e-a80a-9ce1bc77cdd4"
+                },
+                {
+                  "key": "Position",
+                  "value": "{{team_position}}",
+                  "type": "text",
+                  "uuid": "0cd6b6c6-917d-4bc4-b62e-0749fdbef9c4"
+                },
+                {
+                  "key": "Type",
+                  "value": "{{team_type}}",
+                  "type": "text",
+                  "uuid": "eb6bc122-f395-4b5c-a148-4eda3cc6785d"
+                },
+                {
+                  "key": "Email",
+                  "value": "{{team_email}}",
+                  "type": "text",
+                  "uuid": "859c1d81-e4ba-4697-ba1e-e0935ec72885"
+                },
+                {
+                  "key": "OrderInd",
+                  "value": "{{team_order}}",
+                  "type": "text",
+                  "uuid": "4696de5a-8601-4349-8aed-bce2ad846533"
+                },
+                {
+                  "key": "IsTemporary",
+                  "value": "{{team_temporary}}",
+                  "type": "text",
+                  "uuid": "987b0a50-6cdc-4151-9ecd-fc7ce2fb2f51"
+                },
+                {
+                  "key": "Image",
+                  "type": "file",
+                  "uuid": "8e6513c7-5baf-46b7-9d22-192641bcc855",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/human/rider-112.jpg"
+                },
+                {
+                  "key": "IsChoosed",
+                  "value": "{{team_choosed}}",
+                  "type": "text",
+                  "uuid": "7a1410e3-393c-420d-90f5-fdc18f07fdce"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Team",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Team"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get a specific team member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned member matches the created one\", function () {",
+                  "    pm.expect(jsonResponse.id).to.eql(parseInt(pm.collectionVariables.get(\"member_id\"), 10));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Team/{{member_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Team",
+                "{{member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change member",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const LATIN_LOWER = \"abcdefghijklmnopqrstuvwxyz\";",
+                  "const LATIN_UPPER = LATIN_LOWER.toUpperCase();",
+                  "const DOMAINS = [\"gmail.com\", \"outlook.com\", \"ukr.net\", \"i.ua\", \"meta.ua\", \"test.ua\"];",
+                  "",
+                  "function generateUsername() {",
+                  "    const domain = DOMAINS[Math.floor(Math.random() * DOMAINS.length)];",
+                  "    const local = Math.random().toString(36).slice(2, 10);",
+                  "    const suffix = Math.random().toString(16).slice(2, 6);",
+                  "    return `${local}${suffix}@${domain}`;",
+                  "}",
+                  "",
+                  "const teamNamePut = pm.variables.replaceIn(\"{{$randomFullName}}\");",
+                  "const teamPositionPut = pm.variables.replaceIn(\"{{$randomJobTitle}}\");",
+                  "const teamTypePut = Math.floor(Math.random() * 3);",
+                  "const teamEmailPut = generateUsername();",
+                  "const teamOrderPut = pm.variables.replaceIn(\"{{$randomInt}}\");",
+                  "const teamTemporaryPut = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "const teamChoosedPut = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"team_name_put\", teamNamePut);",
+                  "pm.collectionVariables.set(\"team_position_put\", teamPositionPut);",
+                  "pm.collectionVariables.set(\"team_type_put\", teamTypePut);",
+                  "pm.collectionVariables.set(\"team_email_put\", teamEmailPut);",
+                  "pm.collectionVariables.set(\"team_order_put\", teamOrderPut);",
+                  "pm.collectionVariables.set(\"team_temporary_put\", teamTemporaryPut);",
+                  "pm.collectionVariables.set(\"team_choosed_put\", teamChoosedPut);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Team member name was updated\", function () {",
+                  "    pm.expect(jsonResponse.name).to.eql(pm.collectionVariables.get(\"team_name_put\"));",
+                  "    pm.expect(jsonResponse.name).to.not.eql(pm.collectionVariables.get(\"team_name\"));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "{{team_name_put}}",
+                  "type": "text",
+                  "uuid": "2d689497-4008-43c5-ba95-eac419efb028"
+                },
+                {
+                  "key": "Position",
+                  "value": "{{team_position_put}}",
+                  "type": "text",
+                  "uuid": "a177e6e5-35b6-4971-9b62-690399ddb818"
+                },
+                {
+                  "key": "Type",
+                  "value": "{{team_type_put}}",
+                  "type": "text",
+                  "uuid": "fa8f7cc3-9f70-4874-8902-73612224ff35"
+                },
+                {
+                  "key": "Email",
+                  "value": "{{team_email_put}}",
+                  "type": "text",
+                  "uuid": "5c851d7c-dd77-4e72-a48f-d565602d70e4"
+                },
+                {
+                  "key": "OrderInd",
+                  "value": "{{team_order_put}}",
+                  "type": "text",
+                  "uuid": "e09af23f-e2e7-42a1-a34d-5694cb43d232"
+                },
+                {
+                  "key": "IsTemporary",
+                  "value": "{{team_temporary_put}}",
+                  "type": "text",
+                  "uuid": "0cc9512f-820c-42f8-8af2-b17fb077bf03"
+                },
+                {
+                  "key": "Image",
+                  "type": "file",
+                  "uuid": "eb6dacd8-c53f-4cfd-8477-50f84a724441",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/human/rider-31.jpg"
+                },
+                {
+                  "key": "IsChoosed",
+                  "value": "{{team_choosed_put}}",
+                  "type": "text",
+                  "uuid": "44aad7b4-7e20-4114-a0a1-7490530a3161"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Team/{{member_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Team",
+                "{{member_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Team/{{member_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Team",
+                "{{member_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "item": [
+        {
+          "name": "get news",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an array\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"array\");",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create News",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const newsTitle = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "const newsContent = pm.variables.replaceIn(\"{{$randomLoremParagraphs}}\");",
+                  "const newsImportant = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"news_title\", newsTitle);",
+                  "pm.collectionVariables.set(\"news_content\", newsContent);",
+                  "pm.collectionVariables.set(\"news_important\", newsImportant);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"News was created (id and title returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.title).to.eql(pm.collectionVariables.get(\"news_title\"));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"news_id\", jsonResponse.id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Title",
+                  "value": "{{news_title}}",
+                  "type": "text",
+                  "uuid": "8b64c9ec-5bcf-4841-af8a-05edccd8d6db"
+                },
+                {
+                  "key": "Content",
+                  "value": "{{news_content}}",
+                  "type": "text",
+                  "uuid": "2b59b936-8e23-4015-a3b9-866911c928fa"
+                },
+                {
+                  "key": "IsImportant",
+                  "value": "{{news_important}}",
+                  "type": "text",
+                  "uuid": "348ebcab-4ee1-4064-8fa8-3e557f21988d"
+                },
+                {
+                  "key": "Images",
+                  "type": "file",
+                  "uuid": "0e144776-46ef-4fbd-803f-ad349e851355",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/cats/cat.120.jpg"
+                },
+                {
+                  "key": "Images",
+                  "type": "file",
+                  "uuid": "9aee96d9-5b9d-46cc-8fbe-6150772c8e50",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/dogs/dog.120.jpg"
+                },
+                {
+                  "key": "Images",
+                  "type": "file",
+                  "uuid": "f7faeedb-82cc-4085-98da-461eb39dcfe5",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/flowers/0128.png"
+                },
+                {
+                  "key": "Images",
+                  "type": "file",
+                  "uuid": "256b29ec-d94d-44a4-9c31-a6de381d4029",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/horses/horse-120.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/News",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get a specific news",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned news matches the created one\", function () {",
+                  "    pm.expect(jsonResponse.id).to.eql(parseInt(pm.collectionVariables.get(\"news_id\"), 10));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{news_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{news_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change news",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const newsTitlePut = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "const newsContentPut = pm.variables.replaceIn(\"{{$randomLoremParagraphs}}\");",
+                  "const newsImportantPut = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"news_title_put\", newsTitlePut);",
+                  "pm.collectionVariables.set(\"news_content_put\", newsContentPut);",
+                  "pm.collectionVariables.set(\"news_important_put\", newsImportantPut);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"News title was updated\", function () {",
+                  "    pm.expect(jsonResponse.title).to.eql(pm.collectionVariables.get(\"news_title_put\"));",
+                  "    pm.expect(jsonResponse.title).to.not.eql(pm.collectionVariables.get(\"news_title\"));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Title",
+                  "value": "{{news_title_put}}",
+                  "type": "text",
+                  "uuid": "3873baba-991d-4116-8375-785b3f34462a"
+                },
+                {
+                  "key": "Content",
+                  "value": "{{news_content_put}}",
+                  "type": "text",
+                  "uuid": "10b78d61-33ba-421f-a3f9-4f09697d894d"
+                },
+                {
+                  "key": "IsImportant",
+                  "value": "{{news_important_put}}",
+                  "type": "text",
+                  "uuid": "14532ea4-a9ec-4360-bf69-3a7a1a92fddb"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{news_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{news_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete news",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{news_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{news_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete last news from list",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/News\",",
+                  "    method: \"GET\",",
+                  "    header: {",
+                  "        Authorization: \"Bearer \" + pm.collectionVariables.get(\"token\"),",
+                  "    },",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        const list = res.json();",
+                  "        if (Array.isArray(list) && list.length > 0) {",
+                  "            pm.collectionVariables.set(\"news_delete_id\", list[list.length - 1].id);",
+                  "        }",
+                  "    }",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{news_delete_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{news_delete_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Faculty",
+      "item": [
+        {
+          "name": "get faculties",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an array\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"array\");",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/faculties",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create a faculty",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const facultyName = pm.variables.replaceIn(\"{{$randomCompanyName}}\");",
+                  "const facultyAddress = pm.variables.replaceIn(\"{{$randomStreetAddress}}\");",
+                  "const facultyRoom = pm.variables.replaceIn(\"{{$randomInt}}\");",
+                  "const facultyInstagram = pm.variables.replaceIn(\"{{$randomUrl}}\");",
+                  "const facultyTelegram = pm.variables.replaceIn(\"{{$randomUrl}}\");",
+                  "const facultySchedule = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "const facultySummary = pm.variables.replaceIn(\"{{$randomLoremParagraph}}\");",
+                  "const facultyActive = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "const facultyCollege = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"faculty_name\", facultyName);",
+                  "pm.collectionVariables.set(\"faculty_address\", facultyAddress);",
+                  "pm.collectionVariables.set(\"faculty_room\", facultyRoom);",
+                  "pm.collectionVariables.set(\"faculty_instagram\", facultyInstagram);",
+                  "pm.collectionVariables.set(\"faculty_telegram\", facultyTelegram);",
+                  "pm.collectionVariables.set(\"faculty_schedule\", facultySchedule);",
+                  "pm.collectionVariables.set(\"faculty_summary\", facultySummary);",
+                  "pm.collectionVariables.set(\"faculty_active\", facultyActive);",
+                  "pm.collectionVariables.set(\"faculty_college\", facultyCollege);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Faculty was created (id and name returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.name).to.eql(pm.collectionVariables.get(\"faculty_name\"));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"faculty_id\", jsonResponse.id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "{{faculty_name}}",
+                  "type": "text",
+                  "uuid": "d452840d-75a0-457b-a425-8ab793191134"
+                },
+                {
+                  "key": "Address",
+                  "value": "{{faculty_address}}",
+                  "type": "text",
+                  "uuid": "a6d2b79e-2452-49cd-b780-6fcdc5971ff5"
+                },
+                {
+                  "key": "Room",
+                  "value": "{{faculty_room}}",
+                  "type": "text",
+                  "uuid": "f721fbb0-6b13-4003-8340-8697eb5d9fc2"
+                },
+                {
+                  "key": "Instagram_Link",
+                  "value": "{{faculty_instagram}}",
+                  "type": "text",
+                  "uuid": "b9b6e2c9-2e84-4038-8548-d6e90a388107"
+                },
+                {
+                  "key": "Telegram_Link",
+                  "value": "{{faculty_telegram}}",
+                  "type": "text",
+                  "uuid": "355569c6-4dbf-4643-b40b-05d2c64c2167"
+                },
+                {
+                  "key": "Schedule",
+                  "value": "{{faculty_schedule}}",
+                  "type": "text",
+                  "uuid": "4219ef21-c117-4df1-ae8d-d194fb07828f"
+                },
+                {
+                  "key": "Summary",
+                  "value": "{{faculty_summary}}",
+                  "type": "text",
+                  "uuid": "4574b0c9-9165-4ddb-a2e0-80500004df20"
+                },
+                {
+                  "key": "IsActive",
+                  "value": "{{faculty_active}}",
+                  "type": "text",
+                  "uuid": "5d4409dc-53ec-4c01-a81c-75e5c9aaca73"
+                },
+                {
+                  "key": "IsCollege",
+                  "value": "{{faculty_college}}",
+                  "type": "text",
+                  "uuid": "28b1555e-df3f-41c3-9824-d74e8bafb14e"
+                },
+                {
+                  "key": "Image",
+                  "type": "file",
+                  "uuid": "2d556042-c181-4011-be26-924c0ccd99b8",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/horses/horse-120.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/faculties",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get a specific faculty",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned faculty matches the created one\", function () {",
+                  "    pm.expect(jsonResponse.id).to.eql(parseInt(pm.collectionVariables.get(\"faculty_id\"), 10));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{faculty_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{faculty_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change a faculty",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const facultyNamePut = pm.variables.replaceIn(\"{{$randomCompanyName}}\");",
+                  "const facultyAddressPut = pm.variables.replaceIn(\"{{$randomStreetAddress}}\");",
+                  "const facultyRoomPut = pm.variables.replaceIn(\"{{$randomInt}}\");",
+                  "const facultyInstagramPut = pm.variables.replaceIn(\"{{$randomUrl}}\");",
+                  "const facultyTelegramPut = pm.variables.replaceIn(\"{{$randomUrl}}\");",
+                  "const facultySchedulePut = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "const facultySummaryPut = pm.variables.replaceIn(\"{{$randomLoremParagraph}}\");",
+                  "const facultyActivePut = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "const facultyCollegePut = pm.variables.replaceIn(\"{{$randomBoolean}}\");",
+                  "",
+                  "pm.collectionVariables.set(\"faculty_name_put\", facultyNamePut);",
+                  "pm.collectionVariables.set(\"faculty_address_put\", facultyAddressPut);",
+                  "pm.collectionVariables.set(\"faculty_room_put\", facultyRoomPut);",
+                  "pm.collectionVariables.set(\"faculty_instagram_put\", facultyInstagramPut);",
+                  "pm.collectionVariables.set(\"faculty_telegram_put\", facultyTelegramPut);",
+                  "pm.collectionVariables.set(\"faculty_schedule_put\", facultySchedulePut);",
+                  "pm.collectionVariables.set(\"faculty_summary_put\", facultySummaryPut);",
+                  "pm.collectionVariables.set(\"faculty_active_put\", facultyActivePut);",
+                  "pm.collectionVariables.set(\"faculty_college_put\", facultyCollegePut);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Faculty name was updated\", function () {",
+                  "    pm.expect(jsonResponse.name).to.eql(pm.collectionVariables.get(\"faculty_name_put\"));",
+                  "    pm.expect(jsonResponse.name).to.not.eql(pm.collectionVariables.get(\"faculty_name\"));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Name",
+                  "value": "{{faculty_name_put}}",
+                  "type": "text",
+                  "uuid": "285483eb-fdec-4b32-9f0e-639a7f80c774"
+                },
+                {
+                  "key": "Address",
+                  "value": "{{faculty_address_put}}",
+                  "type": "text",
+                  "uuid": "7ec34681-da27-4433-99db-431f7d807d5b"
+                },
+                {
+                  "key": "Room",
+                  "value": "{{faculty_room_put}}",
+                  "type": "text",
+                  "uuid": "2f9cd492-1b2d-4163-96bc-a68af722fc6c"
+                },
+                {
+                  "key": "Instagram_Link",
+                  "value": "{{faculty_instagram_put}}",
+                  "type": "text",
+                  "uuid": "fc4f06c9-f96f-4955-b0db-3e217f9391aa"
+                },
+                {
+                  "key": "Telegram_Link",
+                  "value": "{{faculty_telegram_put}}",
+                  "type": "text",
+                  "uuid": "f204d19e-812a-409c-a6e1-0c5023fb6539"
+                },
+                {
+                  "key": "Schedule",
+                  "value": "{{faculty_schedule_put}}",
+                  "type": "text",
+                  "uuid": "13456da6-d57e-4055-af23-3193d065771f"
+                },
+                {
+                  "key": "Summary",
+                  "value": "{{faculty_summary_put}}",
+                  "type": "text",
+                  "uuid": "ceadbb61-0799-4d80-addb-be0ffadfcaaf"
+                },
+                {
+                  "key": "IsActive",
+                  "value": "{{faculty_active_put}}",
+                  "type": "text",
+                  "uuid": "a271fde5-444a-4a6b-8dfb-52a344ec7f5c"
+                },
+                {
+                  "key": "IsCollege",
+                  "value": "{{faculty_college_put}}",
+                  "type": "text",
+                  "uuid": "bbf5b69e-3311-436a-b368-cead48ad396e"
+                },
+                {
+                  "key": "Image",
+                  "type": "file",
+                  "uuid": "2e717571-be34-4374-ba4e-c1922a183af0",
+                  "src": "/E:/Study/Profkom site/Sprint4/data/cats/cat.31.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{faculty_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{faculty_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete a faculty",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{faculty_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{faculty_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "get events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an array\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"array\");",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/events",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "add events",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const eventTitle = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "const eventDescription = pm.variables.replaceIn(\"{{$randomLoremParagraph}}\");",
+                  "const eventLocation = pm.variables.replaceIn(\"{{$randomStreetAddress}}\");",
+                  "const eventImageUrl = pm.variables.replaceIn(\"{{$randomImageUrl}}\");",
+                  "const startDate = new Date(pm.variables.replaceIn(\"{{$randomDateFuture}}\"));",
+                  "const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);",
+                  "",
+                  "pm.collectionVariables.set(\"event_title\", eventTitle);",
+                  "pm.collectionVariables.set(\"event_description\", eventDescription);",
+                  "pm.collectionVariables.set(\"event_location\", eventLocation);",
+                  "pm.collectionVariables.set(\"event_image_url\", eventImageUrl);",
+                  "pm.collectionVariables.set(\"event_starts_at\", startDate.toISOString());",
+                  "pm.collectionVariables.set(\"event_ends_at\", endDate.toISOString());",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Event was created (id and title returned)\", function () {",
+                  "    pm.expect(jsonResponse.id).to.be.a(\"number\");",
+                  "    pm.expect(jsonResponse.title).to.eql(pm.collectionVariables.get(\"event_title\"));",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"event_id\", jsonResponse.id);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{event_title}}\",\n  \"description\": \"{{event_description}}\",\n  \"startsAt\": \"{{event_starts_at}}\",\n  \"endsAt\": \"{{event_ends_at}}\",\n  \"location\": \"{{event_location}}\",\n  \"imageUrl\": \"{{event_image_url}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/events",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get a specific event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned event matches the created one\", function () {",
+                  "    pm.expect(jsonResponse.id).to.eql(parseInt(pm.collectionVariables.get(\"event_id\"), 10));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/events/{{event_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "events",
+                "{{event_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change an event",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const eventTitlePut = pm.variables.replaceIn(\"{{$randomLoremSentence}}\");",
+                  "const eventDescriptionPut = pm.variables.replaceIn(\"{{$randomLoremParagraph}}\");",
+                  "const eventLocationPut = pm.variables.replaceIn(\"{{$randomStreetAddress}}\");",
+                  "const eventImageUrlPut = pm.variables.replaceIn(\"{{$randomImageUrl}}\");",
+                  "const startDatePut = new Date(pm.variables.replaceIn(\"{{$randomDateFuture}}\"));",
+                  "const endDatePut = new Date(startDatePut.getTime() + 2 * 60 * 60 * 1000);",
+                  "",
+                  "pm.collectionVariables.set(\"event_title_put\", eventTitlePut);",
+                  "pm.collectionVariables.set(\"event_description_put\", eventDescriptionPut);",
+                  "pm.collectionVariables.set(\"event_location_put\", eventLocationPut);",
+                  "pm.collectionVariables.set(\"event_image_url_put\", eventImageUrlPut);",
+                  "pm.collectionVariables.set(\"event_starts_at_put\", startDatePut.toISOString());",
+                  "pm.collectionVariables.set(\"event_ends_at_put\", endDatePut.toISOString());",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Response body is an object\", function () {",
+                  "    pm.expect(jsonResponse).to.be.an(\"object\");",
+                  "});",
+                  "",
+                  "pm.test(\"Event title was updated\", function () {",
+                  "    pm.expect(jsonResponse.title).to.eql(pm.collectionVariables.get(\"event_title_put\"));",
+                  "    pm.expect(jsonResponse.title).to.not.eql(pm.collectionVariables.get(\"event_title\"));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{event_title_put}}\",\n  \"description\": \"{{event_description_put}}\",\n  \"startsAt\": \"{{event_starts_at_put}}\",\n  \"endsAt\": \"{{event_ends_at_put}}\",\n  \"location\": \"{{event_location_put}}\",\n  \"imageUrl\": \"{{event_image_url_put}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/events/{{event_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "events",
+                "{{event_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete an event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "pm.test(\"Response body is valid JSON\", function () {",
+                  "    pm.expect(() => pm.response.json()).to.not.throw();",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/events/{{event_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "events",
+                "{{event_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "//-------------------------------------------------------------------------------------------------\r",
+                  "// request order: login => create admin => list admin => edit admin => new password check login =>\r",
+                  "// delete admin => list admins || create admin XSS if necessary.\r",
+                  "//-------------------------------------------------------------------------------------------------\r",
+                  "jsonResponse = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"token\", jsonResponse.token);\r",
+                  "console.log(\"token: \", jsonResponse.token);\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "pm.test(\"Token is present\", function () {\r",
+                  "    pm.expect(jsonResponse.token).to.not.be.null;\r",
+                  "});\r",
+                  "pm.execution.setNextRequest(\"list admins\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"admin@gmail.com\",\r\n  \"password\": \"%lsMY1%eHsW0\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DDT login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "//-------------------------------------------------------------------------------------------------\r",
+                  "// request order: login => create admin => list admin => edit admin => new password check login =>\r",
+                  "// delete admin => list admins || create admin XSS if necessary.\r",
+                  "//-------------------------------------------------------------------------------------------------\r",
+                  "jsonResponse = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"token\", jsonResponse.token);\r",
+                  "console.log(\"token: \", jsonResponse.token);\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "pm.test(\"Token is present\", function () {\r",
+                  "    pm.expect(jsonResponse.token).to.not.be.null;\r",
+                  "});\r",
+                  "pm.execution.setNextRequest(\"list admins\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"DDT\", 0);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"{{DDT_username}}\", //or email*\r\n    \"password\": \"{{@DDT_password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "new password check login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let jsonResponse = pm.response.json();\r",
+                  "pm.collectionVariables.set(\"token\", jsonResponse.token);\r",
+                  "console.log(\"token: \", jsonResponse.token);\r",
+                  "\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "pm.test(\"Status code is 200: password was successfully changed\", function () {\r",
+                  "    pm.response.to.have.status(200) && pm.collectionVariables.get(\"password\") != pm.collectionVariables.get(\"check_edit_password\");\r",
+                  "});\r",
+                  "pm.execution.setNextRequest(\"delete admin\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"{{admin_email}}\",\r\n    \"password\": \"{{check_edit_password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list admins",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"id\", pm.response.json()[pm.response.json().length - 1].id); // Assuming the first admin's ID is needed for further requests.\r",
+                  "//create admin => check if the new admin was created\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"admin_email\", pm.response.json()[pm.response.json().length - 1].username); \r",
+                  "if(parseInt(pm.collectionVariables.get(\"end\")) == 0){ // executes after create admin request\r",
+                  "    pm.execution.setNextRequest(\"new password check login\");\r",
+                  "    pm.test(\"admin with such email was created\", () => {\r",
+                  "    pm.expect(pm.response.json()[pm.response.json().length - 1].username).to.eql(pm.collectionVariables.get(\"create_admin_check_username\"));\r",
+                  "});\r",
+                  "} else{\r",
+                  "    pm.collectionVariables.set(\"DDT\", 1); // if the test is not the last one, set DDT to 1 to skip the next request.\r",
+                  "    pm.execution.setNextRequest(null);\r",
+                  "}\r",
+                  "if(pm.collectionVariables.get(\"end\") == 1){ // executes after delete admin request\r",
+                  "    pm.test(\"admin was deleted\", ()=>{\r",
+                  "        pm.response.json()[pm.response.json().length - 1].id === parseInt(pm.collectionVariables.get(\"id\") - 1);\r",
+                  "    });\r",
+                  "}\r",
+                  "\r",
+                  "pm.execution.setNextRequest(\"edit admin\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/list",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"create_admin_check_username\", pm.response.json().username);\r",
+                  "pm.collectionVariables.set(\"create_edit_id\", pm.response.json().id);\r",
+                  "pm.execution.setNextRequest(\"login\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const CYRILLIC_LOWER = \"абвгґдеєжзиіїйклмнопрстуфхцчшщьюя\";\r",
+                  "const CYRILLIC_UPPER = CYRILLIC_LOWER.toUpperCase();\r",
+                  "const LATIN_LOWER = \"abcdefghijklmnopqrstuvwxyz\";\r",
+                  "const LATIN_UPPER = LATIN_LOWER.toUpperCase();\r",
+                  "const DIGITS = \"0123456789\";\r",
+                  "const SPECIAL = \"!@#$%^&*\";\r",
+                  "\r",
+                  "const DOMAINS = [\r",
+                  "    \"gmail.com\", \"outlook.com\", \"ukr.net\", \"i.ua\", \"meta.ua\", \"test.ua\",\r",
+                  "    \"mail.company.co.uk\", \"admin-portal.io\", \"corp-test.dev\", \"example.org\",\r",
+                  "    \"proton.me\", \"пошта.укр\"\r",
+                  "];\r",
+                  "\r",
+                  "function randChar(pool) {\r",
+                  "    return pool[Math.floor(Math.random() * pool.length)];\r",
+                  "}\r",
+                  "\r",
+                  "function shuffle(chars) {\r",
+                  "    for (let i = chars.length - 1; i > 0; i--) {\r",
+                  "        const j = Math.floor(Math.random() * (i + 1));\r",
+                  "        [chars[i], chars[j]] = [chars[j], chars[i]];\r",
+                  "    }\r",
+                  "    return chars;\r",
+                  "}\r",
+                  "\r",
+                  "function generateLocalPart(length) {\r",
+                  "    const pools = [CYRILLIC_LOWER, CYRILLIC_UPPER, LATIN_LOWER, LATIN_UPPER, DIGITS];\r",
+                  "    const chars = pools.map(randChar);\r",
+                  "    const combined = pools.join(\"\");\r",
+                  "    while (chars.length < length) chars.push(randChar(combined));\r",
+                  "    return shuffle(chars).join(\"\");\r",
+                  "}\r",
+                  "\r",
+                  "function generateUsername() {\r",
+                  "    const domain = DOMAINS[Math.floor(Math.random() * DOMAINS.length)];\r",
+                  "    const local = generateLocalPart(10);\r",
+                  "    const suffix = Math.random().toString(16).slice(2, 6);\r",
+                  "    return `${local}${suffix}@${domain}`;\r",
+                  "}\r",
+                  "\r",
+                  "function generatePassword(length) {\r",
+                  "    const chars = [randChar(LATIN_UPPER), randChar(LATIN_LOWER), randChar(DIGITS), randChar(SPECIAL)];\r",
+                  "    const pool = LATIN_LOWER + LATIN_UPPER + DIGITS + SPECIAL;\r",
+                  "    while (chars.length < length) chars.push(randChar(pool));\r",
+                  "    return shuffle(chars).join(\"\");\r",
+                  "}\r",
+                  "\r",
+                  "const email = generateUsername();\r",
+                  "const password = generatePassword(12);\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"email\", email);\r",
+                  "pm.collectionVariables.set(\"password\", password);\r",
+                  "pm.collectionVariables.set(\"end\", 0);\r",
+                  "console.log(\"Generated admin payload:\", { email, password });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"{{email}}\",\r\n    \"password\": \"{{password}}\",\r\n    \"role\": \"admin\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create admin XSS",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const SECURITY_PAYLOADS = [\r",
+                  "    { category: \"SQL Injection\", target: \"username\", payload: \"' OR '1'='1\" },\r",
+                  "    { category: \"SQL Injection\", target: \"password\", payload: \"' OR '1'='1\" },\r",
+                  "    { category: \"SQL Injection\", target: \"username\", payload: \"admin'--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"password\", payload: \"admin'--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"username\", payload: \"' OR '1'='1'--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"password\", payload: \"' OR '1'='1'--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"username\", payload: \"'; DROP TABLE admins;--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"password\", payload: \"'; DROP TABLE admins;--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"username\", payload: \"' UNION SELECT username, password FROM admins--\" },\r",
+                  "    { category: \"SQL Injection\", target: \"password\", payload: \"' UNION SELECT username, password FROM admins--\" },\r",
+                  "    { category: \"XSS\", target: \"username\", payload: \"<script>alert(1)</script>\" },\r",
+                  "    { category: \"XSS\", target: \"password\", payload: \"<script>alert(1)</script>\" },\r",
+                  "    { category: \"XSS\", target: \"username\", payload: \"\\\"><script>alert(document.cookie)</script>\" },\r",
+                  "    { category: \"XSS\", target: \"password\", payload: \"\\\"><script>alert(document.cookie)</script>\" },\r",
+                  "    { category: \"XSS\", target: \"username\", payload: \"<img src=x onerror=alert(1)>\" },\r",
+                  "    { category: \"XSS\", target: \"password\", payload: \"<img src=x onerror=alert(1)>\" },\r",
+                  "    { category: \"XSS\", target: \"username\", payload: \"javascript:alert(1)\" },\r",
+                  "    { category: \"XSS\", target: \"password\", payload: \"javascript:alert(1)\" },\r",
+                  "    { category: \"XSS\", target: \"username\", payload: \"<svg/onload=alert(1)>\" },\r",
+                  "    { category: \"XSS\", target: \"password\", payload: \"<svg/onload=alert(1)>\" },\r",
+                  "    { category: \"NoSQL Injection\", target: \"username\", payload: '{\"$gt\": \"\"}' },\r",
+                  "    { category: \"NoSQL Injection\", target: \"password\", payload: '{\"$gt\": \"\"}' },\r",
+                  "    { category: \"NoSQL Injection\", target: \"username\", payload: '{\"$ne\": null}' },\r",
+                  "    { category: \"NoSQL Injection\", target: \"password\", payload: '{\"$ne\": null}' },\r",
+                  "    { category: \"Command Injection\", target: \"username\", payload: \"; ls -la\" },\r",
+                  "    { category: \"Command Injection\", target: \"password\", payload: \"; ls -la\" },\r",
+                  "    { category: \"Command Injection\", target: \"username\", payload: \"$(whoami)\" },\r",
+                  "    { category: \"Command Injection\", target: \"password\", payload: \"$(whoami)\" },\r",
+                  "    { category: \"Command Injection\", target: \"username\", payload: \"| cat /etc/passwd\" },\r",
+                  "    { category: \"Command Injection\", target: \"password\", payload: \"| cat /etc/passwd\" },\r",
+                  "    { category: \"LDAP Injection\", target: \"username\", payload: \"*)(uid=*))(|(uid=*\" },\r",
+                  "    { category: \"LDAP Injection\", target: \"password\", payload: \"*)(uid=*))(|(uid=*\" },\r",
+                  "    { category: \"LDAP Injection\", target: \"username\", payload: \"*)(|(password=*))\" },\r",
+                  "    { category: \"LDAP Injection\", target: \"password\", payload: \"*)(|(password=*))\" },\r",
+                  "];\r",
+                  "\r",
+                  "const VALID_DOMAINS = [\"gmail.com\", \"outlook.com\", \"ukr.net\", \"i.ua\", \"meta.ua\", \"test.ua\"];\r",
+                  "\r",
+                  "function randomValidEmail() {\r",
+                  "    const local = Math.random().toString(36).slice(2, 10);\r",
+                  "    const domain = VALID_DOMAINS[Math.floor(Math.random() * VALID_DOMAINS.length)];\r",
+                  "    return `${local}@${domain}`;\r",
+                  "}\r",
+                  "\r",
+                  "function randomValidPassword() {\r",
+                  "    return \"Qa\" + Math.random().toString(36).slice(2, 8) + \"1!\";\r",
+                  "}\r",
+                  "\r",
+                  "let index = parseInt(pm.collectionVariables.get(\"secPayloadIndex\"), 10);\r",
+                  "if (isNaN(index) || index >= SECURITY_PAYLOADS.length) index = 0;\r",
+                  "\r",
+                  "const testCase = SECURITY_PAYLOADS[index];\r",
+                  "pm.collectionVariables.set(\"secPayloadIndex\", index + 1);\r",
+                  "pm.collectionVariables.set(\"secPayloadTotal\", SECURITY_PAYLOADS.length);\r",
+                  "\r",
+                  "const email = testCase.target === \"username\" ? testCase.payload : randomValidEmail();\r",
+                  "const password = testCase.target === \"password\" ? testCase.payload : randomValidPassword();\r",
+                  "\r",
+                  "pm.variables.set(\"email\", email);\r",
+                  "pm.variables.set(\"password\", password);\r",
+                  "pm.variables.set(\"secCategory\", testCase.category);\r",
+                  "pm.variables.set(\"secTargetField\", testCase.target);\r",
+                  "pm.variables.set(\"secPayload\", testCase.payload);\r",
+                  "\r",
+                  "console.log(`[${index + 1}/${SECURITY_PAYLOADS.length}] ${testCase.category} -> ${testCase.target}: ${testCase.payload}`);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const category = pm.variables.get(\"secCategory\") || \"unknown\";\r",
+                  "const targetField = pm.variables.get(\"secTargetField\") || \"unknown\";\r",
+                  "const payload = pm.variables.get(\"secPayload\") || \"\";\r",
+                  "\r",
+                  "let body = \"\";\r",
+                  "try {\r",
+                  "    body = pm.response.text();\r",
+                  "} catch (e) {\r",
+                  "    body = \"\";\r",
+                  "}\r",
+                  "\r",
+                  "pm.test(`[${category}/${targetField}] request is rejected (not 2xx)`, function () {\r",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.oneOf([200, 201]);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(`[${category}/${targetField}] response does not reflect the raw payload`, function () {\r",
+                  "    pm.expect(body, `payload: ${payload}`).to.not.include(payload);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(`[${category}/${targetField}] response does not leak SQL/DB error internals`, function () {\r",
+                  "    const dbErrorSignatures = [\r",
+                  "        \"SQLSTATE\", \"syntax error\", \"ORA-\", \"SQLITE_ERROR\",\r",
+                  "        \"pg_query\", \"mysql_fetch\", \"System.Data.SqlClient\",\r",
+                  "        \"psycopg2\", \"asyncpg\", \"IntegrityError\", \"OperationalError\"\r",
+                  "    ];\r",
+                  "    const leaked = dbErrorSignatures.some((sig) => body.toLowerCase().includes(sig.toLowerCase()));\r",
+                  "    pm.expect(leaked, `payload: ${payload}, body: ${body.slice(0, 300)}`).to.be.false;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(`[${category}/${targetField}] no admin was actually created with malicious data`, function () {\r",
+                  "    const success = pm.response.code === 200 || pm.response.code === 201;\r",
+                  "    if (success) {\r",
+                  "        console.warn(`SECURITY ISSUE: admin created with malicious ${targetField}: ${payload}`);\r",
+                  "    }\r",
+                  "    pm.expect(success, `payload: ${payload}`).to.be.false;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/create",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "edit admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"check_edit_password\", pm.collectionVariables.get(\"put_password\"));\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if(parseInt(pm.collectionVariables.get(\"DDT\")) == 0){\r",
+                  "    pm.execution.setNextRequest(\"edit admin DDT\");\r",
+                  "};\r",
+                  "\r",
+                  "const CYRILLIC_LOWER = \"абвгґдеєжзиіїйклмнопрстуфхцчшщьюя\";\r",
+                  "const CYRILLIC_UPPER = CYRILLIC_LOWER.toUpperCase();\r",
+                  "const LATIN_LOWER = \"abcdefghijklmnopqrstuvwxyz\";\r",
+                  "const LATIN_UPPER = LATIN_LOWER.toUpperCase();\r",
+                  "const DIGITS = \"0123456789\";\r",
+                  "const SPECIAL = \"!@#$%^&*\";\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "function randChar(pool) {\r",
+                  "    return pool[Math.floor(Math.random() * pool.length)];\r",
+                  "}\r",
+                  "\r",
+                  "function shuffle(chars) {\r",
+                  "    for (let i = chars.length - 1; i > 0; i--) {\r",
+                  "        const j = Math.floor(Math.random() * (i + 1));\r",
+                  "        [chars[i], chars[j]] = [chars[j], chars[i]];\r",
+                  "    }\r",
+                  "    return chars;\r",
+                  "}\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "function generatePassword(length) {\r",
+                  "    const chars = [randChar(LATIN_UPPER), randChar(LATIN_LOWER), randChar(DIGITS), randChar(SPECIAL)];\r",
+                  "    const pool = LATIN_LOWER + LATIN_UPPER + DIGITS + SPECIAL;\r",
+                  "    while (chars.length < length) chars.push(randChar(pool));\r",
+                  "    return shuffle(chars).join(\"\");\r",
+                  "}\r",
+                  "\r",
+                  "const password = generatePassword(12);\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"put_password\", password);\r",
+                  "\r",
+                  "console.log(\"Generated admin payload:\", { password });"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"password\": \"{{put_password}}\",\r\n  \"role\": \"admin\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/edit/{{create_edit_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "edit",
+                "{{create_edit_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "edit admin DDT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"check_edit_password\", pm.collectionVariables.get(\"put_password\"));\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"password\": \"{{DDT_put_password}}\",\r\n  \"role\": \"admin\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/edit{{id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "edit{{id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test(\"Response time is less than 300ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);\r",
+                  "});\r",
+                  "pm.test(\"content type == application/json\", () => {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "pm.collectionVariables.set(\"end\", 1); //check if this is the end(stops at list admins);\r",
+                  "pm.execution.setNextRequest(\"list admins\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/delete/{{id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "delete",
+                "{{id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Restore passwords",
+      "item": [
+        {
+          "name": "login Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Content-Type is application/json\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "// TODO: заготовка під JSON-schema перевірку - вставити реальну схему нижче",
+                  "// const schema = {};",
+                  "// pm.test(\"Response matches JSON schema\", function () {",
+                  "//     pm.response.to.have.jsonSchema(schema);",
+                  "// });",
+                  "",
+                  "pm.test(\"Status code is 2xx\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "const jsonResponse = pm.response.json();",
+                  "pm.test(\"Token is present\", function () {",
+                  "    pm.expect(jsonResponse.token).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set(\"token\", jsonResponse.token);",
+                  "pm.execution.setNextRequest(\"create admin\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin@gmail.com\",\n  \"password\": \"@Admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{tkn}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "tkn",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "create_admin_check_username",
+      "value": ""
+    },
+    {
+      "key": "create_edit_id",
+      "value": ""
+    },
+    {
+      "key": "end",
+      "value": ""
+    },
+    {
+      "key": "put_password",
+      "value": ""
+    },
+    {
+      "key": "check_edit_password",
+      "value": ""
+    },
+    {
+      "key": "doc_id",
+      "value": ""
+    },
+    {
+      "key": "doc_title_put",
+      "value": ""
+    },
+    {
+      "key": "unit_name",
+      "value": ""
+    },
+    {
+      "key": "unit_content",
+      "value": ""
+    },
+    {
+      "key": "unit_order",
+      "value": ""
+    },
+    {
+      "key": "unit_active",
+      "value": ""
+    },
+    {
+      "key": "unit_id",
+      "value": ""
+    },
+    {
+      "key": "unit_name_put",
+      "value": ""
+    },
+    {
+      "key": "unit_content_put",
+      "value": ""
+    },
+    {
+      "key": "unit_order_put",
+      "value": ""
+    },
+    {
+      "key": "unit_active_put",
+      "value": ""
+    },
+    {
+      "key": "team_name",
+      "value": ""
+    },
+    {
+      "key": "team_position",
+      "value": ""
+    },
+    {
+      "key": "team_type",
+      "value": ""
+    },
+    {
+      "key": "team_email",
+      "value": ""
+    },
+    {
+      "key": "team_order",
+      "value": ""
+    },
+    {
+      "key": "team_temporary",
+      "value": ""
+    },
+    {
+      "key": "team_choosed",
+      "value": ""
+    },
+    {
+      "key": "member_id",
+      "value": ""
+    },
+    {
+      "key": "team_name_put",
+      "value": ""
+    },
+    {
+      "key": "team_position_put",
+      "value": ""
+    },
+    {
+      "key": "team_type_put",
+      "value": ""
+    },
+    {
+      "key": "team_email_put",
+      "value": ""
+    },
+    {
+      "key": "team_order_put",
+      "value": ""
+    },
+    {
+      "key": "team_temporary_put",
+      "value": ""
+    },
+    {
+      "key": "team_choosed_put",
+      "value": ""
+    },
+    {
+      "key": "news_title",
+      "value": ""
+    },
+    {
+      "key": "news_content",
+      "value": ""
+    },
+    {
+      "key": "news_important",
+      "value": ""
+    },
+    {
+      "key": "news_id",
+      "value": ""
+    },
+    {
+      "key": "news_title_put",
+      "value": ""
+    },
+    {
+      "key": "news_content_put",
+      "value": ""
+    },
+    {
+      "key": "news_important_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_name",
+      "value": ""
+    },
+    {
+      "key": "faculty_address",
+      "value": ""
+    },
+    {
+      "key": "faculty_room",
+      "value": ""
+    },
+    {
+      "key": "faculty_instagram",
+      "value": ""
+    },
+    {
+      "key": "faculty_telegram",
+      "value": ""
+    },
+    {
+      "key": "faculty_schedule",
+      "value": ""
+    },
+    {
+      "key": "faculty_summary",
+      "value": ""
+    },
+    {
+      "key": "faculty_active",
+      "value": ""
+    },
+    {
+      "key": "faculty_college",
+      "value": ""
+    },
+    {
+      "key": "faculty_id",
+      "value": ""
+    },
+    {
+      "key": "faculty_name_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_address_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_room_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_instagram_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_telegram_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_schedule_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_summary_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_active_put",
+      "value": ""
+    },
+    {
+      "key": "faculty_college_put",
+      "value": ""
+    },
+    {
+      "key": "event_title",
+      "value": ""
+    },
+    {
+      "key": "event_description",
+      "value": ""
+    },
+    {
+      "key": "event_location",
+      "value": ""
+    },
+    {
+      "key": "event_image_url",
+      "value": ""
+    },
+    {
+      "key": "event_starts_at",
+      "value": ""
+    },
+    {
+      "key": "event_ends_at",
+      "value": ""
+    },
+    {
+      "key": "event_id",
+      "value": ""
+    },
+    {
+      "key": "event_title_put",
+      "value": ""
+    },
+    {
+      "key": "event_description_put",
+      "value": ""
+    },
+    {
+      "key": "event_location_put",
+      "value": ""
+    },
+    {
+      "key": "event_image_url_put",
+      "value": ""
+    },
+    {
+      "key": "event_starts_at_put",
+      "value": ""
+    },
+    {
+      "key": "event_ends_at_put",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
