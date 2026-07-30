@@ -1,0 +1,5 @@
+﻿target_kind,Expected result,scenario
+valid,204,Позитив/Видалення існуючого відділу (споживає dep_target_id)
+missing,404,Негатив/Неіснуючий id 99999 → 404
+nonnumeric,400,Негатив/Нечисловий id abc → 400 (binding int)
+negative,404,Гранично/Відʼємний id -1 → 404

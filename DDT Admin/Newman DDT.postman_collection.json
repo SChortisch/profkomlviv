@@ -1,0 +1,430 @@
+{
+  "info": {
+    "_postman_id": "a1000000-0000-4000-8000-000000000002",
+    "name": "Newman DDT",
+    "description": "Виключно для Newman. Шість самодостатніх папок (без jchaining setNextRequest), кожна прогоняється окремою командою newman зі своїм CSV через -d. Кожен request має лише дві перевірки: час відповіді і DDT-специфічну (Expected result / 2xx=fail для security). Перед запуском 'Edit password DDT' та 'SQL_XSS Edit password' виставте колекційну змінну edit_target_id (id одноразового тестового адміна).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login DDT",
+      "item": [
+        {
+          "name": "Login DDT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{DDT_username}}\",\n  \"password\": \"{{DDT_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "Admin", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Create admin DDT",
+      "item": [
+        {
+          "name": "Create admin DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{DDT_username}}\",\n  \"password\": \"{{DDT_password}}\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "Admin", "create"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Edit password DDT",
+      "item": [
+        {
+          "name": "Edit password DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{DDT_put_password}}\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/edit/{{edit_target_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "Admin", "edit", "{{edit_target_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Login",
+      "item": [
+        {
+          "name": "SQL_XSS Login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const target = pm.iterationData.get(\"target_field\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "function randomValidEmail() {",
+                  "    return `${Math.random().toString(36).slice(2, 10)}@example.com`;",
+                  "}",
+                  "function randomValidPassword() {",
+                  "    return \"Qa\" + Math.random().toString(36).slice(2, 8) + \"1!\";",
+                  "}",
+                  "",
+                  "pm.variables.set(\"sqlxss_username\", target === \"username\" ? payload : randomValidEmail());",
+                  "pm.variables.set(\"sqlxss_password\", target === \"password\" ? payload : randomValidPassword());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{sqlxss_username}}\",\n  \"password\": \"{{sqlxss_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "Admin", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Create admin",
+      "item": [
+        {
+          "name": "SQL_XSS Create admin",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});",
+                  "",
+                  "const target = pm.iterationData.get(\"target_field\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "function randomValidEmail() {",
+                  "    return `${Math.random().toString(36).slice(2, 10)}@example.com`;",
+                  "}",
+                  "function randomValidPassword() {",
+                  "    return \"Qa\" + Math.random().toString(36).slice(2, 8) + \"1!\";",
+                  "}",
+                  "",
+                  "pm.variables.set(\"sqlxss_username\", target === \"username\" ? payload : randomValidEmail());",
+                  "pm.variables.set(\"sqlxss_password\", target === \"password\" ? payload : randomValidPassword());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{sqlxss_username}}\",\n  \"password\": \"{{sqlxss_password}}\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "Admin", "create"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Edit password",
+      "item": [
+        {
+          "name": "SQL_XSS Edit password",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{payload}}\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/edit/{{edit_target_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "Admin", "edit", "{{edit_target_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{ddt_token}}", "type": "string" }
+    ]
+  },
+  "event": [
+    { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [""] } },
+    { "listen": "test", "script": { "type": "text/javascript", "exec": [""] } }
+  ],
+  "variable": [
+    { "key": "ddt_token", "value": "" },
+    { "key": "edit_target_id", "value": "" }
+  ]
+}

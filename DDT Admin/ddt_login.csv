@@ -1,0 +1,40 @@
+﻿DDT_username,DDT_password,Expected result,scenario
+admin@gmail.com,xb8InQ$w%8#^,200,"Позитив/Валідний логін адміна id=1 (пароль змінено, не як у DbInitializer)"
+Duma@profkom.com,@Duma2004,200,Позитив/Seed-адмін Duma
+Oleksandra.ssf@profkom.com,!Slyvka2006,200,Позитив/Seed-адмін з крапкою в username
+sofia@profkom.com,!Tereshkevych1,200,Позитив/Seed-адмін sofia
+Nelia@profkom.com,@Ofredr14,200,Позитив/Seed-адмін Nelia
+marusia@profkom.com,@InmovToLove12,200,Позитив/Seed-адмін marusia
+bohuslav@profkom.com,!Ateist1488,200,Позитив/Seed-адмін bohuslav
+Diana@profkom.com,!Ekonomist19,200,Позитив/Seed-адмін Diana
+ADMIN@GMAIL.COM,xb8InQ$w%8#^,200,Граничне/Username у верхньому регістрі (collation ci)
+duma@profkom.com,@Duma2004,200,Граничне/Username у нижньому регістрі (collation ci)
+DuMa@PrOfKoM.cOm,@Duma2004,200,Граничне/Username у змішаному регістрі (collation ci)
+"Duma@profkom.com ",@Duma2004,200,Граничне/Хвостовий пробіл у username (PAD SPACE ігнорує)
+admin@gmail.com,WrongPass123!,401,Негатив/Невірний пароль
+ghostuser@profkom.com,AnyPass123!,401,Негатив/Неіснуючий користувач
+Duma@profkom.com,@duma2004,401,Негатив/Пароль у іншому регістрі (BCrypt чутливий до регістру)
+Duma@profkom.com,"@Duma2004 ",401,Негатив/Хвостовий пробіл у паролі (BCrypt порівнює побайтово)
+" Duma@profkom.com",@Duma2004,401,Негатив/Провідний пробіл у username (PAD SPACE не обрізає початок)
+admin@gmail.com.ua,xb8InQ$w%8#^,401,"Негатив/Правильний пароль, але схожий інший домен"
+admin@gmail.co,xb8InQ$w%8#^,401,"Негатив/Правильний пароль, але обрізаний домен"
+admin,xb8InQ$w%8#^,401,"Негатив/Правильний пароль, але username без домену"
+' OR '1'='1,WrongPass123!,401,Security/SQL-ін єкція в username не обходить пароль
+admin'--,WrongPass123!,401,Security/SQL-коментар у username не обходить пароль
+admin@gmail.com'--,WrongPass123!,401,Security/Спроба обрізати перевірку пароля коментарем
+admin@gmail.com,' OR '1'='1,401,Security/SQL-ін єкція в пароль
+<script>alert(1)</script>,WrongPass123!,401,Security/XSS у username
+Duma@profkom.com,<img src=x onerror=alert(1)>,401,Security/XSS у пароль
+а9yaHrEmGT003,Admin@12345,401,Security/Homoglyph: кирилична а у username
+аdmin@gmail.com,xb8InQ$w%8#^,401,"Security/Homoglyph: кирилична а в реальному username, пароль правильний"
+admin@gmail.com,Пароль123😀,401,Граничне/Unicode+emoji у паролі (не збігається з реальним)
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@x.com,Aa1!aaaa,401,"Граничне/Username 96 символів (у межах MaxLength 100), неіснуючий"
+Duma@profkom.com,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,401,"Граничне/Пароль рівно 100 символів (== MaxLength), невірний"
+,,400,Негатив/Порожні username і password (Required → 400)
+,xb8InQ$w%8#^,400,Негатив/Порожній username при правильному паролі (Required → 400)
+admin@gmail.com,,400,Негатив/Порожній password (Required → 400)
+"   ","   ",400,"Негатив/Лише пробіли в username і password (Required.Trim() → 400, не 401)"
+admin@gmail.com,"   ",400,Негатив/Пароль лише з пробілів (Required.Trim() → 400)
+"   ",xb8InQ$w%8#^,400,Негатив/Username лише з пробілів (Required.Trim() → 400)
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@x.com,Aa1!aaaa,400,Граничне/Username 101 символ (> MaxLength 100 → 400)
+Duma@profkom.com,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,400,Граничне/Пароль 101 символ (> MaxLength 100 → 400)

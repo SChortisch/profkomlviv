@@ -1,0 +1,7 @@
+﻿category,payload
+SQL Injection,1 OR 1=1
+SQL Injection,1; DROP TABLE Departments;--
+SQL Injection,1' OR '1'='1
+Path Traversal,../../etc/passwd
+XSS,<script>alert(1)</script>
+Length,11111111111111111111

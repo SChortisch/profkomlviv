@@ -1,0 +1,829 @@
+{
+  "info": {
+    "_postman_id": "a1000000-0000-4000-8000-000000000005",
+    "name": "Newman DDT",
+    "description": "Виключно для Newman. Вісім самодостатніх папок (без chaining setNextRequest), кожна прогоняється окремою командою newman зі своїм CSV через -d. Перед запуском 'Update news DDT' та 'SQL_XSS Update news' виставте колекційну змінну news_target_id; перед 'Delete news DDT' — news_target_id; перед 'Delete news image DDT' — news_image_target_id (id конкретного NewsImage, не News).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create news DDT",
+      "item": [
+        {
+          "name": "Create news DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const title = String(pm.iterationData.get(\"Title\") ?? \"\");",
+                  "const content = String(pm.iterationData.get(\"Content\") ?? \"\");",
+                  "const isImportant = String(pm.iterationData.get(\"IsImportant\") ?? \"\");",
+                  "const imagesFilePaths = String(pm.iterationData.get(\"ImagesFilePaths\") ?? \"\");",
+                  "",
+                  "if (title === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: \"\", type: \"text\" });",
+                  "} else if (title !== \"\") {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: title, type: \"text\" });",
+                  "}",
+                  "if (content !== \"\") pm.request.body.formdata.add({ key: \"Content\", value: content, type: \"text\" });",
+                  "if (isImportant !== \"\") pm.request.body.formdata.add({ key: \"IsImportant\", value: isImportant, type: \"text\" });",
+                  "if (imagesFilePaths !== \"\") {",
+                  "    imagesFilePaths.split(\"|\").forEach(function (p) {",
+                  "        pm.request.body.formdata.add({ key: \"Images\", src: p, type: \"file\" });",
+                  "    });",
+                  "}",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/News",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Update news DDT",
+      "item": [
+        {
+          "name": "Update news DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const title = String(pm.iterationData.get(\"Title\") ?? \"\");",
+                  "const content = String(pm.iterationData.get(\"Content\") ?? \"\");",
+                  "const isImportant = String(pm.iterationData.get(\"IsImportant\") ?? \"\");",
+                  "const imagesFilePaths = String(pm.iterationData.get(\"ImagesFilePaths\") ?? \"\");",
+                  "",
+                  "if (title === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: \"\", type: \"text\" });",
+                  "} else if (title !== \"\") {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: title, type: \"text\" });",
+                  "}",
+                  "if (content !== \"\") pm.request.body.formdata.add({ key: \"Content\", value: content, type: \"text\" });",
+                  "if (isImportant !== \"\") pm.request.body.formdata.add({ key: \"IsImportant\", value: isImportant, type: \"text\" });",
+                  "if (imagesFilePaths !== \"\") {",
+                  "    imagesFilePaths.split(\"|\").forEach(function (p) {",
+                  "        pm.request.body.formdata.add({ key: \"Images\", src: p, type: \"file\" });",
+                  "    });",
+                  "}",
+                  "",
+                  "const idOverride = String(pm.iterationData.get(\"idOverride\") ?? \"\");",
+                  "const targetId = idOverride !== \"\" ? idOverride : pm.variables.get(\"news_target_id\");",
+                  "pm.variables.set(\"resolved_id\", targetId);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delete news DDT",
+      "item": [
+        {
+          "name": "Delete news DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const idValue = String(pm.iterationData.get(\"idValue\") ?? \"\");",
+                  "",
+                  "const targetId = (idValue === \"USE_TARGET\") ? pm.variables.get(\"news_target_id\") : idValue;",
+                  "pm.variables.set(\"resolved_id\", targetId);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delete news image DDT",
+      "item": [
+        {
+          "name": "Delete news image DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const idValue = String(pm.iterationData.get(\"idValue\") ?? \"\");",
+                  "",
+                  "const targetId = (idValue === \"USE_TARGET\") ? pm.variables.get(\"news_image_target_id\") : idValue;",
+                  "pm.variables.set(\"resolved_image_id\", targetId);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    const authMode = pm.iterationData.get(\"AuthMode\") || \"valid\";",
+                  "",
+                  "    if (authMode === \"missing\") {",
+                  "        pm.variables.set(\"run_token\", \"\");",
+                  "    } else if (authMode === \"invalid\") {",
+                  "        pm.variables.set(\"run_token\", \"invalid.jwt.token\");",
+                  "    } else {",
+                  "        pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/image/{{resolved_image_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "image",
+                "{{resolved_image_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Create news",
+      "item": [
+        {
+          "name": "SQL_XSS Create news",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const target = String(pm.iterationData.get(\"target_field\") ?? \"\");",
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "",
+                  "const defaults = {",
+                  "    Title: \"SecurityDDT valid title\",",
+                  "    Content: \"SecurityDDT valid content\"",
+                  "};",
+                  "",
+                  "function val(key) { return target === key ? payload : defaults[key]; }",
+                  "",
+                  "if (target === \"Title\" && payload === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: \"\", type: \"text\" });",
+                  "} else {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: val(\"Title\"), type: \"text\" });",
+                  "}",
+                  "pm.request.body.formdata.add({ key: \"Content\", value: val(\"Content\"), type: \"text\" });",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/News",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Update news",
+      "item": [
+        {
+          "name": "SQL_XSS Update news",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const target = String(pm.iterationData.get(\"target_field\") ?? \"\");",
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "",
+                  "const targetId = pm.variables.get(\"news_target_id\");",
+                  "pm.variables.set(\"resolved_id\", targetId);",
+                  "",
+                  "const defaults = {",
+                  "    Title: \"SecurityDDT valid title\",",
+                  "    Content: \"SecurityDDT valid content\"",
+                  "};",
+                  "",
+                  "function val(key) { return target === key ? payload : defaults[key]; }",
+                  "",
+                  "if (target === \"Title\" && payload === \"__EMPTY__\") {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: \"\", type: \"text\" });",
+                  "} else {",
+                  "    pm.request.body.formdata.add({ key: \"Title\", value: val(\"Title\"), type: \"text\" });",
+                  "}",
+                  "pm.request.body.formdata.add({ key: \"Content\", value: val(\"Content\"), type: \"text\" });",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Delete news",
+      "item": [
+        {
+          "name": "SQL_XSS Delete news",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "pm.variables.set(\"resolved_id\", payload);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "{{resolved_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Delete news image",
+      "item": [
+        {
+          "name": "SQL_XSS Delete news image",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const payload = String(pm.iterationData.get(\"payload\") ?? \"\");",
+                  "pm.variables.set(\"resolved_image_id\", payload);",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({ username: \"admin@gmail.com\", password: \"xb8InQ$w%8#^\" })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "",
+                  "    pm.variables.set(\"run_token\", pm.collectionVariables.get(\"ddt_token\"));",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{run_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/News/image/{{resolved_image_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "News",
+                "image",
+                "{{resolved_image_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ddt_token",
+      "value": ""
+    },
+    {
+      "key": "news_target_id",
+      "value": ""
+    },
+    {
+      "key": "news_image_target_id",
+      "value": ""
+    }
+  ]
+}

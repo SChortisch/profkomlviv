@@ -1,0 +1,552 @@
+{
+  "info": {
+    "_postman_id": "a1000000-0000-4000-8000-000000000003",
+    "name": "Newman DDT Department",
+    "description": "Виключно для Newman. Шість самодостатніх папок (без chaining/setNextRequest), кожна прогоняється окремою командою newman зі своїм CSV через -d. Функціональні папки перевіряють точний HTTP-код зі стовпця Expected result; SQL_XSS-папки перевіряють правило 2xx=fail. Запускати з теки Sprint4, щоб logo_path резолвився відносно working-dir.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create department DDT",
+      "item": [
+        {
+          "name": "Create department DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: pm.variables.get(\"ddt_admin_user\") || \"Duma@profkom.com\",",
+                  "            password: pm.variables.get(\"ddt_admin_pass\") || \"@Duma2004\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (err || res.code !== 200) {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "        pm.variables.set(\"resolved_head_id\", pm.iterationData.get(\"HeadId\"));",
+                  "        return;",
+                  "    }",
+                  "    const token = res.json().token;",
+                  "    pm.collectionVariables.set(\"ddt_token\", token);",
+                  "",
+                  "    const headIdRaw = pm.iterationData.get(\"HeadId\");",
+                  "    if (headIdRaw !== \"VALID\") {",
+                  "        pm.variables.set(\"resolved_head_id\", headIdRaw);",
+                  "        return;",
+                  "    }",
+                  "",
+                  "    pm.sendRequest({",
+                  "        url: \"http://localhost:8080/api/Team\",",
+                  "        method: \"POST\",",
+                  "        header: { Authorization: \"Bearer \" + token },",
+                  "        body: {",
+                  "            mode: \"formdata\",",
+                  "            formdata: [",
+                  "                { key: \"Name\", value: \"DDT Head\", type: \"text\" },",
+                  "                { key: \"Position\", value: \"DDT\", type: \"text\" },",
+                  "                { key: \"Type\", value: \"2\", type: \"text\" },",
+                  "                { key: \"OrderInd\", value: \"0\", type: \"text\" },",
+                  "                { key: \"IsTemporary\", value: \"true\", type: \"text\" }",
+                  "            ]",
+                  "        }",
+                  "    }, function (teamErr, teamRes) {",
+                  "        if (!teamErr && teamRes.code === 201) {",
+                  "            pm.variables.set(\"resolved_head_id\", teamRes.json().id);",
+                  "        } else {",
+                  "            console.error(\"Не вдалося створити DDT Head\", teamErr || teamRes.code);",
+                  "            pm.variables.set(\"resolved_head_id\", \"\");",
+                  "        }",
+                  "    });",
+                  "});",
+                  "",
+                  "const logoPath = pm.iterationData.get(\"logo_path\");",
+                  "const logoParam = pm.request.body.formdata.find((p) => p.key === \"Logo\");",
+                  "if (logoParam) {",
+                  "    logoParam.disabled = !logoPath;",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "Name", "value": "{{Name}}", "type": "text" },
+                { "key": "Description", "value": "{{Description}}", "type": "text" },
+                { "key": "HeadId", "value": "{{resolved_head_id}}", "type": "text" },
+                { "key": "IsActive", "value": "{{IsActive}}", "type": "text" },
+                { "key": "Logo", "type": "file", "src": "{{logo_path}}" }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/departments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "departments"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Edit department DDT",
+      "item": [
+        {
+          "name": "Edit department DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: pm.variables.get(\"ddt_admin_user\") || \"Duma@profkom.com\",",
+                  "            password: pm.variables.get(\"ddt_admin_pass\") || \"@Duma2004\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (err || res.code !== 200) {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "        pm.variables.set(\"resolved_head_id\", pm.iterationData.get(\"HeadId\"));",
+                  "        return;",
+                  "    }",
+                  "    const token = res.json().token;",
+                  "    pm.collectionVariables.set(\"ddt_token\", token);",
+                  "",
+                  "    const headIdRaw = pm.iterationData.get(\"HeadId\");",
+                  "    if (headIdRaw !== \"VALID\") {",
+                  "        pm.variables.set(\"resolved_head_id\", headIdRaw);",
+                  "        return;",
+                  "    }",
+                  "",
+                  "    pm.sendRequest({",
+                  "        url: \"http://localhost:8080/api/Team\",",
+                  "        method: \"POST\",",
+                  "        header: { Authorization: \"Bearer \" + token },",
+                  "        body: {",
+                  "            mode: \"formdata\",",
+                  "            formdata: [",
+                  "                { key: \"Name\", value: \"DDT Head\", type: \"text\" },",
+                  "                { key: \"Position\", value: \"DDT\", type: \"text\" },",
+                  "                { key: \"Type\", value: \"2\", type: \"text\" },",
+                  "                { key: \"OrderInd\", value: \"0\", type: \"text\" },",
+                  "                { key: \"IsTemporary\", value: \"true\", type: \"text\" }",
+                  "            ]",
+                  "        }",
+                  "    }, function (teamErr, teamRes) {",
+                  "        if (!teamErr && teamRes.code === 201) {",
+                  "            pm.variables.set(\"resolved_head_id\", teamRes.json().id);",
+                  "        } else {",
+                  "            console.error(\"Не вдалося створити DDT Head\", teamErr || teamRes.code);",
+                  "            pm.variables.set(\"resolved_head_id\", \"\");",
+                  "        }",
+                  "    });",
+                  "});",
+                  "",
+                  "const logoPath = pm.iterationData.get(\"logo_path\");",
+                  "const logoParam = pm.request.body.formdata.find((p) => p.key === \"Logo\");",
+                  "if (logoParam) {",
+                  "    logoParam.disabled = !logoPath;",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "Name", "value": "{{Name}}", "type": "text" },
+                { "key": "Description", "value": "{{Description}}", "type": "text" },
+                { "key": "HeadId", "value": "{{resolved_head_id}}", "type": "text" },
+                { "key": "IsActive", "value": "{{IsActive}}", "type": "text" },
+                { "key": "Logo", "type": "file", "src": "{{logo_path}}" }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/departments/{{dep_target_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "departments", "{{dep_target_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delete department DDT",
+      "item": [
+        {
+          "name": "Delete department DDT",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: pm.variables.get(\"ddt_admin_user\") || \"Duma@profkom.com\",",
+                  "            password: pm.variables.get(\"ddt_admin_pass\") || \"@Duma2004\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});",
+                  "",
+                  "const kind = pm.iterationData.get(\"target_kind\");",
+                  "const map = {",
+                  "    valid: pm.variables.get(\"dep_target_id\"),",
+                  "    missing: \"99999\",",
+                  "    nonnumeric: \"abc\",",
+                  "    negative: \"-1\"",
+                  "};",
+                  "pm.variables.set(\"delete_id\", map[kind]);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const expected = parseInt(pm.iterationData.get(\"Expected result\"), 10);",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`DDT: status code matches Expected result (${expected})`, function () {",
+                  "    pm.response.to.have.status(expected);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/departments/{{delete_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "departments", "{{delete_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Create department",
+      "item": [
+        {
+          "name": "SQL_XSS Create department",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: pm.variables.get(\"ddt_admin_user\") || \"Duma@profkom.com\",",
+                  "            password: pm.variables.get(\"ddt_admin_pass\") || \"@Duma2004\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});",
+                  "",
+                  "const target = pm.iterationData.get(\"target_field\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.variables.set(\"sqlxss_name\", target === \"Name\" ? payload : \"SQLXSS Dept\");",
+                  "pm.variables.set(\"sqlxss_description\", target === \"Description\" ? payload : \"SQLXSS test description\");",
+                  "pm.variables.set(\"sqlxss_logourl\", target === \"LogoUrl\" ? payload : \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "Name", "value": "{{sqlxss_name}}", "type": "text" },
+                { "key": "Description", "value": "{{sqlxss_description}}", "type": "text" },
+                { "key": "LogoUrl", "value": "{{sqlxss_logourl}}", "type": "text" },
+                { "key": "IsActive", "value": "true", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/departments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "departments"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Edit department",
+      "item": [
+        {
+          "name": "SQL_XSS Edit department",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: pm.variables.get(\"ddt_admin_user\") || \"Duma@profkom.com\",",
+                  "            password: pm.variables.get(\"ddt_admin_pass\") || \"@Duma2004\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});",
+                  "",
+                  "const target = pm.iterationData.get(\"target_field\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.variables.set(\"sqlxss_name\", target === \"Name\" ? payload : \"SQLXSS Dept\");",
+                  "pm.variables.set(\"sqlxss_description\", target === \"Description\" ? payload : \"SQLXSS test description\");",
+                  "pm.variables.set(\"sqlxss_logourl\", target === \"LogoUrl\" ? payload : \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "Name", "value": "{{sqlxss_name}}", "type": "text" },
+                { "key": "Description", "value": "{{sqlxss_description}}", "type": "text" },
+                { "key": "LogoUrl", "value": "{{sqlxss_logourl}}", "type": "text" },
+                { "key": "IsActive", "value": "true", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/departments/{{dep_target_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "departments", "{{dep_target_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SQL_XSS Delete department",
+      "item": [
+        {
+          "name": "SQL_XSS Delete department",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    method: \"POST\",",
+                  "    header: { \"Content-Type\": \"application/json\" },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: pm.variables.get(\"ddt_admin_user\") || \"Duma@profkom.com\",",
+                  "            password: pm.variables.get(\"ddt_admin_pass\") || \"@Duma2004\"",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        pm.collectionVariables.set(\"ddt_token\", res.json().token);",
+                  "    } else {",
+                  "        console.error(\"Не вдалося отримати токен для DDT-запиту\", err || res.code);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const category = pm.iterationData.get(\"category\");",
+                  "const payload = pm.iterationData.get(\"payload\");",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+                  "    pm.expect(pm.response.code, `payload: ${payload}`).to.not.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/departments/{{payload}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "departments", "{{payload}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{ddt_token}}", "type": "string" }
+    ]
+  },
+  "event": [
+    { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [""] } },
+    { "listen": "test", "script": { "type": "text/javascript", "exec": [""] } }
+  ],
+  "variable": [
+    { "key": "ddt_token", "value": "" },
+    { "key": "dep_target_id", "value": "" }
+  ]
+}
