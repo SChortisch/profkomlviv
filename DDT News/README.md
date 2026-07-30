@@ -1,17 +1,15 @@
-```
-npx newman run "Newman DDT.postman_collection.json" --folder "Create news DDT" -d "ddt_create_news.csv"
+# DDT / Newman — News API
 
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Create news" -d "SQL_XSS_create_news.csv"
+Датасети та Newman-колекція для data-driven тестування `/api/news`.
 
-npx newman run "Newman DDT.postman_collection.json" --folder "Update news DDT" -d "ddt_update_news.csv" --env-var news_target_id=<ID>
+**Команди запуску — у спільному [`DDT/README.md`](../README.md#ddt-news--apinews).**
+Там же передумови, авторизація (спільний env-файл) і змінні під конкретний прогін.
 
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Update news" -d "SQL_XSS_update_news.csv" --env-var news_target_id=<ID>
+## Що в теці
 
-npx newman run "Newman DDT.postman_collection.json" --folder "Delete news DDT" -d "ddt_delete_news.csv" --env-var news_target_id=<ID>
-
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Delete news" -d "SQL_XSS_delete_news.csv"
-
-npx newman run "Newman DDT.postman_collection.json" --folder "Delete news image DDT" -d "ddt_delete_news_image.csv" --env-var news_image_target_id=<IMAGE_ID>
-
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Delete news image" -d "SQL_XSS_delete_news_image.csv"
-```
+- `Newman DDT.postman_collection.json` — колекція, шість самодостатніх папок
+  (create / update / delete та їхні SQL_XSS-двійники), без chaining.
+- `ddt_*.csv` — функціональні датасети (стовпець `Expected result` — очікуваний
+  HTTP-код, `scenario` — опис рядка).
+- `SQL_XSS_*.csv` — security-датасети (`category`, `target_field`, `payload`;
+  правило перевірки: будь-яка відповідь `2xx` = провал).

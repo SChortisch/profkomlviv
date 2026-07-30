@@ -10,12 +10,12 @@ Diana@profkom.com,!Ekonomist19,200,Позитив/Seed-адмін Diana
 ADMIN@GMAIL.COM,xb8InQ$w%8#^,200,Граничне/Username у верхньому регістрі (collation ci)
 duma@profkom.com,@Duma2004,200,Граничне/Username у нижньому регістрі (collation ci)
 DuMa@PrOfKoM.cOm,@Duma2004,200,Граничне/Username у змішаному регістрі (collation ci)
-"Duma@profkom.com ",@Duma2004,200,Граничне/Хвостовий пробіл у username (PAD SPACE ігнорує)
+Duma@profkom.com ,@Duma2004,200,Граничне/Хвостовий пробіл у username (PAD SPACE ігнорує)
 admin@gmail.com,WrongPass123!,401,Негатив/Невірний пароль
 ghostuser@profkom.com,AnyPass123!,401,Негатив/Неіснуючий користувач
 Duma@profkom.com,@duma2004,401,Негатив/Пароль у іншому регістрі (BCrypt чутливий до регістру)
-Duma@profkom.com,"@Duma2004 ",401,Негатив/Хвостовий пробіл у паролі (BCrypt порівнює побайтово)
-" Duma@profkom.com",@Duma2004,401,Негатив/Провідний пробіл у username (PAD SPACE не обрізає початок)
+Duma@profkom.com,@Duma2004 ,401,Негатив/Хвостовий пробіл у паролі (BCrypt порівнює побайтово)
+ Duma@profkom.com,@Duma2004,401,Негатив/Провідний пробіл у username (PAD SPACE не обрізає початок)
 admin@gmail.com.ua,xb8InQ$w%8#^,401,"Негатив/Правильний пароль, але схожий інший домен"
 admin@gmail.co,xb8InQ$w%8#^,401,"Негатив/Правильний пароль, але обрізаний домен"
 admin,xb8InQ$w%8#^,401,"Негатив/Правильний пароль, але username без домену"
@@ -33,8 +33,8 @@ Duma@profkom.com,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ,,400,Негатив/Порожні username і password (Required → 400)
 ,xb8InQ$w%8#^,400,Негатив/Порожній username при правильному паролі (Required → 400)
 admin@gmail.com,,400,Негатив/Порожній password (Required → 400)
-"   ","   ",400,"Негатив/Лише пробіли в username і password (Required.Trim() → 400, не 401)"
-admin@gmail.com,"   ",400,Негатив/Пароль лише з пробілів (Required.Trim() → 400)
-"   ",xb8InQ$w%8#^,400,Негатив/Username лише з пробілів (Required.Trim() → 400)
+   ,   ,400,"Негатив/Лише пробіли в username і password (Required.Trim() → 400, не 401)"
+admin@gmail.com,   ,400,Негатив/Пароль лише з пробілів (Required.Trim() → 400)
+   ,xb8InQ$w%8#^,400,Негатив/Username лише з пробілів (Required.Trim() → 400)
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@x.com,Aa1!aaaa,400,Граничне/Username 101 символ (> MaxLength 100 → 400)
 Duma@profkom.com,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,400,Граничне/Пароль 101 символ (> MaxLength 100 → 400)

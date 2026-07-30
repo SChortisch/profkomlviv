@@ -44,6 +44,12 @@ Response: `200 Success`
 Path params: `id` (integer, int32, required)
 Response: `200 Success`
 
+**Практично, зміна username/password (для синхронізації з DDT-даними):**
+- Пароль хешується BCrypt (`Admin.PasswordHash`) — міняти лише через `PUT /api/Admin/edit/{id}` (поле `password` у тілі), напряму в БД через SQL не можна (`UPDATE ... SET PasswordHash='текст'` зламає логін).
+- Валідація пароля (і при `create`, і при `edit`): `^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$` — мін. 8 символів, 1 велика літера, 1 цифра, 1 спецсимвол.
+- `AdminEditRequest` не має поля `username` (див. схему нижче) — змінити логін можна лише напряму в БД: `UPDATE Admins SET Username='...' WHERE Id=...` (це безпечно, бо `Username`, на відміну від пароля, не хешується).
+- Seed-акаунти (`backend/Backend/Data/DbInitializer.cs`) додаються, лише якщо такого `Username` ще нема в БД — правка seed-файлу **не оновить** вже існуючі записи, вплине тільки на нову/порожню базу.
+
 ---
 
 ## Department

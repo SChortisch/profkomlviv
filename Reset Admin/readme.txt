@@ -1,0 +1,1 @@
+npx newman run "Reset Admin Defaults.postman_collection.json" -e "reset.postman_environment.json" -d "reset_admin_defaults.csv"

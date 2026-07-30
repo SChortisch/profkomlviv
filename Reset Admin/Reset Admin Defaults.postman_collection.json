@@ -1,0 +1,157 @@
+{
+  "info": {
+    "_postman_id": "a9000000-0000-4000-8000-000000000009",
+    "name": "Reset Admin Defaults",
+    "description": "Скидає паролі seed-адмінів (backend/Backend/Data/DbInitializer.cs) назад у дефолтний стан після прогонів 'Edit password DDT' / 'SQL_XSS Edit password' з DDT Admin, які їх змінюють.\n\nАвторизація йде через окремий reserve-акаунт (reserve@gmail.com), який НІКОЛИ не бере участі в DDT-тестах як target і ніколи не змінюється — тому лишається робочим, навіть якщо всі інші паролі 'зламані' тестами (на відміну від ddt_admin_user/ddt_admin_pass у ddt.postman_environment.json, який сам є звичайним seed-адміном і теж може постраждати).\n\nКожна ітерація: логін reserve -> GET /api/Admin/list -> знаходить id за Username -> PUT /api/Admin/edit/{id} з DefaultPassword із reset_admin_defaults.csv.\n\nЗапуск:\nnewman run \"Reset Admin Defaults.postman_collection.json\" -e \"reset.postman_environment.json\" -d \"reset_admin_defaults.csv\"",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Reset admin password",
+      "item": [
+        {
+          "name": "Reset admin password",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function loginAsReserve(next) {",
+                  "    pm.sendRequest({",
+                  "        url: \"http://localhost:8080/api/Admin/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({",
+                  "                username: pm.variables.get(\"reserve_user\"),",
+                  "                password: pm.variables.get(\"reserve_pass\")",
+                  "            })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (err || res.code !== 200) {",
+                  "            throw new Error(\"Логін reserve-акаунта не вдався — перевірте reserve_user/reserve_pass у reset.postman_environment.json: \" + (err || res.code));",
+                  "        }",
+                  "        pm.collectionVariables.set(\"reset_token\", res.json().token);",
+                  "        next();",
+                  "    });",
+                  "}",
+                  "",
+                  "function resolveTargetId(next) {",
+                  "    const username = pm.iterationData.get(\"Username\");",
+                  "    pm.sendRequest({",
+                  "        url: \"http://localhost:8080/api/Admin/list\",",
+                  "        method: \"GET\",",
+                  "        header: { \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"reset_token\") }",
+                  "    }, function (err, res) {",
+                  "        if (err || res.code !== 200) {",
+                  "            throw new Error(\"Не вдалось отримати /api/Admin/list: \" + (err || res.code));",
+                  "        }",
+                  "        const found = res.json().find(a => a.username === username);",
+                  "        if (!found) {",
+                  "            throw new Error(`Адміна '${username}' не знайдено в БД — рядок у CSV застарів чи акаунта видалено`);",
+                  "        }",
+                  "        pm.variables.set(\"target_id\", found.id);",
+                  "        next();",
+                  "    });",
+                  "}",
+                  "",
+                  "loginAsReserve(function () {",
+                  "    resolveTargetId(function () {});",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(`Password reset to default for ${pm.iterationData.get(\"Username\")}`, function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{DefaultPassword}}\",\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/Admin/edit/{{target_id}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "Admin",
+                "edit",
+                "{{target_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{reset_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.variables.get(\"reserve_user\") || !pm.variables.get(\"reserve_pass\")) {",
+          "    throw new Error(\"Немає reserve_user/reserve_pass. Додайте до команди newman: -e \\\"reset.postman_environment.json\\\"\");",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "reset_token",
+      "value": ""
+    }
+  ]
+}

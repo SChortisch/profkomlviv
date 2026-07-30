@@ -1,80 +1,80 @@
 ﻿Name,Description,HeadId,IsActive,logo_path,Expected result,scenario
-Dept bike 1,DDT mass-iterate bike,,true,data/bike/bike_001.bmp,204,Позитив/Логотип bike #1
-Dept bike 2,DDT mass-iterate bike,,true,data/bike/bike_002.bmp,204,Позитив/Логотип bike #2
-Dept bike 3,DDT mass-iterate bike,,true,data/bike/bike_003.bmp,204,Позитив/Логотип bike #3
-Dept bike 4,DDT mass-iterate bike,,true,data/bike/bike_004.bmp,204,Позитив/Логотип bike #4
-Dept bike 5,DDT mass-iterate bike,,true,data/bike/bike_005.bmp,204,Позитив/Логотип bike #5
-Dept bike 6,DDT mass-iterate bike,,true,data/bike/bike_006.bmp,204,Позитив/Логотип bike #6
-Dept bike 7,DDT mass-iterate bike,,true,data/bike/bike_007.bmp,204,Позитив/Логотип bike #7
-Dept bike 8,DDT mass-iterate bike,,true,data/bike/bike_008.bmp,204,Позитив/Логотип bike #8
-Dept bike 9,DDT mass-iterate bike,,true,data/bike/bike_009.bmp,204,Позитив/Логотип bike #9
-Dept bike 10,DDT mass-iterate bike,,true,data/bike/bike_010.bmp,204,Позитив/Логотип bike #10
-Dept cars 1,DDT mass-iterate cars,,true,data/cars/carsgraz_001.bmp,204,Позитив/Логотип cars #1
-Dept cars 2,DDT mass-iterate cars,,true,data/cars/carsgraz_002.bmp,204,Позитив/Логотип cars #2
-Dept cars 3,DDT mass-iterate cars,,true,data/cars/carsgraz_003.bmp,204,Позитив/Логотип cars #3
-Dept cars 4,DDT mass-iterate cars,,true,data/cars/carsgraz_004.bmp,204,Позитив/Логотип cars #4
-Dept cars 5,DDT mass-iterate cars,,true,data/cars/carsgraz_005.bmp,204,Позитив/Логотип cars #5
-Dept cars 6,DDT mass-iterate cars,,true,data/cars/carsgraz_006.bmp,204,Позитив/Логотип cars #6
-Dept cars 7,DDT mass-iterate cars,,true,data/cars/carsgraz_007.bmp,204,Позитив/Логотип cars #7
-Dept cars 8,DDT mass-iterate cars,,true,data/cars/carsgraz_008.bmp,204,Позитив/Логотип cars #8
-Dept cars 9,DDT mass-iterate cars,,true,data/cars/carsgraz_009.bmp,204,Позитив/Логотип cars #9
-Dept cars 10,DDT mass-iterate cars,,true,data/cars/carsgraz_010.bmp,204,Позитив/Логотип cars #10
-Dept cats 1,DDT mass-iterate cats,,true,data/cats/cat.1.jpg,204,Позитив/Логотип cats #1
-Dept cats 2,DDT mass-iterate cats,,true,data/cats/cat.10.jpg,204,Позитив/Логотип cats #2
-Dept cats 3,DDT mass-iterate cats,,true,data/cats/cat.100.jpg,204,Позитив/Логотип cats #3
-Dept cats 4,DDT mass-iterate cats,,true,data/cats/cat.101.jpg,204,Позитив/Логотип cats #4
-Dept cats 5,DDT mass-iterate cats,,true,data/cats/cat.102.jpg,204,Позитив/Логотип cats #5
-Dept cats 6,DDT mass-iterate cats,,true,data/cats/cat.103.jpg,204,Позитив/Логотип cats #6
-Dept cats 7,DDT mass-iterate cats,,true,data/cats/cat.104.jpg,204,Позитив/Логотип cats #7
-Dept cats 8,DDT mass-iterate cats,,true,data/cats/cat.105.jpg,204,Позитив/Логотип cats #8
-Dept cats 9,DDT mass-iterate cats,,true,data/cats/cat.106.jpg,204,Позитив/Логотип cats #9
-Dept cats 10,DDT mass-iterate cats,,true,data/cats/cat.107.jpg,204,Позитив/Логотип cats #10
-Dept dogs 1,DDT mass-iterate dogs,,true,data/dogs/dog.1.jpg,204,Позитив/Логотип dogs #1
-Dept dogs 2,DDT mass-iterate dogs,,true,data/dogs/dog.10.jpg,204,Позитив/Логотип dogs #2
-Dept dogs 3,DDT mass-iterate dogs,,true,data/dogs/dog.100.jpg,204,Позитив/Логотип dogs #3
-Dept dogs 4,DDT mass-iterate dogs,,true,data/dogs/dog.101.jpg,204,Позитив/Логотип dogs #4
-Dept dogs 5,DDT mass-iterate dogs,,true,data/dogs/dog.102.jpg,204,Позитив/Логотип dogs #5
-Dept dogs 6,DDT mass-iterate dogs,,true,data/dogs/dog.103.jpg,204,Позитив/Логотип dogs #6
-Dept dogs 7,DDT mass-iterate dogs,,true,data/dogs/dog.104.jpg,204,Позитив/Логотип dogs #7
-Dept dogs 8,DDT mass-iterate dogs,,true,data/dogs/dog.105.jpg,204,Позитив/Логотип dogs #8
-Dept dogs 9,DDT mass-iterate dogs,,true,data/dogs/dog.106.jpg,204,Позитив/Логотип dogs #9
-Dept dogs 10,DDT mass-iterate dogs,,true,data/dogs/dog.107.jpg,204,Позитив/Логотип dogs #10
-Dept flowers 1,DDT mass-iterate flowers,,true,data/flowers/0001.png,204,Позитив/Логотип flowers #1
-Dept flowers 2,DDT mass-iterate flowers,,true,data/flowers/0002.png,204,Позитив/Логотип flowers #2
-Dept flowers 3,DDT mass-iterate flowers,,true,data/flowers/0003.png,204,Позитив/Логотип flowers #3
-Dept flowers 4,DDT mass-iterate flowers,,true,data/flowers/0004.png,204,Позитив/Логотип flowers #4
-Dept flowers 5,DDT mass-iterate flowers,,true,data/flowers/0005.png,204,Позитив/Логотип flowers #5
-Dept flowers 6,DDT mass-iterate flowers,,true,data/flowers/0006.png,204,Позитив/Логотип flowers #6
-Dept flowers 7,DDT mass-iterate flowers,,true,data/flowers/0007.png,204,Позитив/Логотип flowers #7
-Dept flowers 8,DDT mass-iterate flowers,,true,data/flowers/0008.png,204,Позитив/Логотип flowers #8
-Dept flowers 9,DDT mass-iterate flowers,,true,data/flowers/0009.png,204,Позитив/Логотип flowers #9
-Dept flowers 10,DDT mass-iterate flowers,,true,data/flowers/0010.png,204,Позитив/Логотип flowers #10
-Dept horses 1,DDT mass-iterate horses,,true,data/horses/horse-1.jpg,204,Позитив/Логотип horses #1
-Dept horses 2,DDT mass-iterate horses,,true,data/horses/horse-10.jpg,204,Позитив/Логотип horses #2
-Dept horses 3,DDT mass-iterate horses,,true,data/horses/horse-100.jpg,204,Позитив/Логотип horses #3
-Dept horses 4,DDT mass-iterate horses,,true,data/horses/horse-101.jpg,204,Позитив/Логотип horses #4
-Dept horses 5,DDT mass-iterate horses,,true,data/horses/horse-102.jpg,204,Позитив/Логотип horses #5
-Dept horses 6,DDT mass-iterate horses,,true,data/horses/horse-103.jpg,204,Позитив/Логотип horses #6
-Dept horses 7,DDT mass-iterate horses,,true,data/horses/horse-104.jpg,204,Позитив/Логотип horses #7
-Dept horses 8,DDT mass-iterate horses,,true,data/horses/horse-105.jpg,204,Позитив/Логотип horses #8
-Dept horses 9,DDT mass-iterate horses,,true,data/horses/horse-106.jpg,204,Позитив/Логотип horses #9
-Dept horses 10,DDT mass-iterate horses,,true,data/horses/horse-107.jpg,204,Позитив/Логотип horses #10
-Dept human 1,DDT mass-iterate human,,true,data/human/rider-1.jpg,204,Позитив/Логотип human #1
-Dept human 2,DDT mass-iterate human,,true,data/human/rider-10.jpg,204,Позитив/Логотип human #2
-Dept human 3,DDT mass-iterate human,,true,data/human/rider-100.jpg,204,Позитив/Логотип human #3
-Dept human 4,DDT mass-iterate human,,true,data/human/rider-101.jpg,204,Позитив/Логотип human #4
-Dept human 5,DDT mass-iterate human,,true,data/human/rider-102.jpg,204,Позитив/Логотип human #5
-Dept human 6,DDT mass-iterate human,,true,data/human/rider-103.jpg,204,Позитив/Логотип human #6
-Dept human 7,DDT mass-iterate human,,true,data/human/rider-104.jpg,204,Позитив/Логотип human #7
-Dept human 8,DDT mass-iterate human,,true,data/human/rider-105.jpg,204,Позитив/Логотип human #8
-Dept human 9,DDT mass-iterate human,,true,data/human/rider-106.jpg,204,Позитив/Логотип human #9
-Dept human 10,DDT mass-iterate human,,true,data/human/rider-107.jpg,204,Позитив/Логотип human #10
-Dept No Logo,Logo опційний,,true,,204,Гранично/Без логотипу — Logo опційний
-Dept WrongType,Не-зображення як логотип,,true,data/Documents/requirements.txt,204,Finding/Не-зображення (.txt) прийнято як логотип — немає перевірки типу файлу
-,Порожній Name,,true,data/cats/cat.1.jpg,400,Негатив/Порожній Name → 400 (implicit Required для non-nullable string)
-"   ",Пробіли у Name,,true,data/cats/cat.1.jpg,400,Негатив/Name лише з пробілів → 400 (Required тримить рядок перед перевіркою)
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,Задовгий Name (300 символів),,true,data/cats/cat.1.jpg,204,Finding/Name 300 символів прийнято — немає maxLength
+Dept bike 1,DDT mass-iterate bike,,TRUE,data/bike/bike_001.bmp,204,Позитив/Логотип bike #1
+Dept bike 2,DDT mass-iterate bike,,TRUE,data/bike/bike_002.bmp,204,Позитив/Логотип bike #2
+Dept bike 3,DDT mass-iterate bike,,TRUE,data/bike/bike_003.bmp,204,Позитив/Логотип bike #3
+Dept bike 4,DDT mass-iterate bike,,TRUE,data/bike/bike_004.bmp,204,Позитив/Логотип bike #4
+Dept bike 5,DDT mass-iterate bike,,TRUE,data/bike/bike_005.bmp,204,Позитив/Логотип bike #5
+Dept bike 6,DDT mass-iterate bike,,TRUE,data/bike/bike_006.bmp,204,Позитив/Логотип bike #6
+Dept bike 7,DDT mass-iterate bike,,TRUE,data/bike/bike_007.bmp,204,Позитив/Логотип bike #7
+Dept bike 8,DDT mass-iterate bike,,TRUE,data/bike/bike_008.bmp,204,Позитив/Логотип bike #8
+Dept bike 9,DDT mass-iterate bike,,TRUE,data/bike/bike_009.bmp,204,Позитив/Логотип bike #9
+Dept bike 10,DDT mass-iterate bike,,TRUE,data/bike/bike_010.bmp,204,Позитив/Логотип bike #10
+Dept cars 1,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_001.bmp,204,Позитив/Логотип cars #1
+Dept cars 2,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_002.bmp,204,Позитив/Логотип cars #2
+Dept cars 3,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_003.bmp,204,Позитив/Логотип cars #3
+Dept cars 4,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_004.bmp,204,Позитив/Логотип cars #4
+Dept cars 5,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_005.bmp,204,Позитив/Логотип cars #5
+Dept cars 6,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_006.bmp,204,Позитив/Логотип cars #6
+Dept cars 7,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_007.bmp,204,Позитив/Логотип cars #7
+Dept cars 8,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_008.bmp,204,Позитив/Логотип cars #8
+Dept cars 9,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_009.bmp,204,Позитив/Логотип cars #9
+Dept cars 10,DDT mass-iterate cars,,TRUE,data/cars/carsgraz_010.bmp,204,Позитив/Логотип cars #10
+Dept cats 1,DDT mass-iterate cats,,TRUE,data/cats/cat.1.jpg,204,Позитив/Логотип cats #1
+Dept cats 2,DDT mass-iterate cats,,TRUE,data/cats/cat.10.jpg,204,Позитив/Логотип cats #2
+Dept cats 3,DDT mass-iterate cats,,TRUE,data/cats/cat.100.jpg,204,Позитив/Логотип cats #3
+Dept cats 4,DDT mass-iterate cats,,TRUE,data/cats/cat.101.jpg,204,Позитив/Логотип cats #4
+Dept cats 5,DDT mass-iterate cats,,TRUE,data/cats/cat.102.jpg,204,Позитив/Логотип cats #5
+Dept cats 6,DDT mass-iterate cats,,TRUE,data/cats/cat.103.jpg,204,Позитив/Логотип cats #6
+Dept cats 7,DDT mass-iterate cats,,TRUE,data/cats/cat.104.jpg,204,Позитив/Логотип cats #7
+Dept cats 8,DDT mass-iterate cats,,TRUE,data/cats/cat.105.jpg,204,Позитив/Логотип cats #8
+Dept cats 9,DDT mass-iterate cats,,TRUE,data/cats/cat.106.jpg,204,Позитив/Логотип cats #9
+Dept cats 10,DDT mass-iterate cats,,TRUE,data/cats/cat.107.jpg,204,Позитив/Логотип cats #10
+Dept dogs 1,DDT mass-iterate dogs,,TRUE,data/dogs/dog.1.jpg,204,Позитив/Логотип dogs #1
+Dept dogs 2,DDT mass-iterate dogs,,TRUE,data/dogs/dog.10.jpg,204,Позитив/Логотип dogs #2
+Dept dogs 3,DDT mass-iterate dogs,,TRUE,data/dogs/dog.100.jpg,204,Позитив/Логотип dogs #3
+Dept dogs 4,DDT mass-iterate dogs,,TRUE,data/dogs/dog.101.jpg,204,Позитив/Логотип dogs #4
+Dept dogs 5,DDT mass-iterate dogs,,TRUE,data/dogs/dog.102.jpg,204,Позитив/Логотип dogs #5
+Dept dogs 6,DDT mass-iterate dogs,,TRUE,data/dogs/dog.103.jpg,204,Позитив/Логотип dogs #6
+Dept dogs 7,DDT mass-iterate dogs,,TRUE,data/dogs/dog.104.jpg,204,Позитив/Логотип dogs #7
+Dept dogs 8,DDT mass-iterate dogs,,TRUE,data/dogs/dog.105.jpg,204,Позитив/Логотип dogs #8
+Dept dogs 9,DDT mass-iterate dogs,,TRUE,data/dogs/dog.106.jpg,204,Позитив/Логотип dogs #9
+Dept dogs 10,DDT mass-iterate dogs,,TRUE,data/dogs/dog.107.jpg,204,Позитив/Логотип dogs #10
+Dept flowers 1,DDT mass-iterate flowers,,TRUE,data/flowers/0001.png,204,Позитив/Логотип flowers #1
+Dept flowers 2,DDT mass-iterate flowers,,TRUE,data/flowers/0002.png,204,Позитив/Логотип flowers #2
+Dept flowers 3,DDT mass-iterate flowers,,TRUE,data/flowers/0003.png,204,Позитив/Логотип flowers #3
+Dept flowers 4,DDT mass-iterate flowers,,TRUE,data/flowers/0004.png,204,Позитив/Логотип flowers #4
+Dept flowers 5,DDT mass-iterate flowers,,TRUE,data/flowers/0005.png,204,Позитив/Логотип flowers #5
+Dept flowers 6,DDT mass-iterate flowers,,TRUE,data/flowers/0006.png,204,Позитив/Логотип flowers #6
+Dept flowers 7,DDT mass-iterate flowers,,TRUE,data/flowers/0007.png,204,Позитив/Логотип flowers #7
+Dept flowers 8,DDT mass-iterate flowers,,TRUE,data/flowers/0008.png,204,Позитив/Логотип flowers #8
+Dept flowers 9,DDT mass-iterate flowers,,TRUE,data/flowers/0009.png,204,Позитив/Логотип flowers #9
+Dept flowers 10,DDT mass-iterate flowers,,TRUE,data/flowers/0010.png,204,Позитив/Логотип flowers #10
+Dept horses 1,DDT mass-iterate horses,,TRUE,data/horses/horse-1.jpg,204,Позитив/Логотип horses #1
+Dept horses 2,DDT mass-iterate horses,,TRUE,data/horses/horse-10.jpg,204,Позитив/Логотип horses #2
+Dept horses 3,DDT mass-iterate horses,,TRUE,data/horses/horse-100.jpg,204,Позитив/Логотип horses #3
+Dept horses 4,DDT mass-iterate horses,,TRUE,data/horses/horse-101.jpg,204,Позитив/Логотип horses #4
+Dept horses 5,DDT mass-iterate horses,,TRUE,data/horses/horse-102.jpg,204,Позитив/Логотип horses #5
+Dept horses 6,DDT mass-iterate horses,,TRUE,data/horses/horse-103.jpg,204,Позитив/Логотип horses #6
+Dept horses 7,DDT mass-iterate horses,,TRUE,data/horses/horse-104.jpg,204,Позитив/Логотип horses #7
+Dept horses 8,DDT mass-iterate horses,,TRUE,data/horses/horse-105.jpg,204,Позитив/Логотип horses #8
+Dept horses 9,DDT mass-iterate horses,,TRUE,data/horses/horse-106.jpg,204,Позитив/Логотип horses #9
+Dept horses 10,DDT mass-iterate horses,,TRUE,data/horses/horse-107.jpg,204,Позитив/Логотип horses #10
+Dept human 1,DDT mass-iterate human,,TRUE,data/human/rider-1.jpg,204,Позитив/Логотип human #1
+Dept human 2,DDT mass-iterate human,,TRUE,data/human/rider-10.jpg,204,Позитив/Логотип human #2
+Dept human 3,DDT mass-iterate human,,TRUE,data/human/rider-100.jpg,204,Позитив/Логотип human #3
+Dept human 4,DDT mass-iterate human,,TRUE,data/human/rider-101.jpg,204,Позитив/Логотип human #4
+Dept human 5,DDT mass-iterate human,,TRUE,data/human/rider-102.jpg,204,Позитив/Логотип human #5
+Dept human 6,DDT mass-iterate human,,TRUE,data/human/rider-103.jpg,204,Позитив/Логотип human #6
+Dept human 7,DDT mass-iterate human,,TRUE,data/human/rider-104.jpg,204,Позитив/Логотип human #7
+Dept human 8,DDT mass-iterate human,,TRUE,data/human/rider-105.jpg,204,Позитив/Логотип human #8
+Dept human 9,DDT mass-iterate human,,TRUE,data/human/rider-106.jpg,204,Позитив/Логотип human #9
+Dept human 10,DDT mass-iterate human,,TRUE,data/human/rider-107.jpg,204,Позитив/Логотип human #10
+Dept No Logo,Logo опційний,,TRUE,,204,Гранично/Без логотипу — Logo опційний
+Dept WrongType,Не-зображення як логотип,,TRUE,data/Documents/requirements.txt,400,Finding/Не-зображення (.txt) прийнято як логотип — немає перевірки типу файлу
+,Порожній Name,,TRUE,data/cats/cat.1.jpg,400,Негатив/Порожній Name → 400 (implicit Required для non-nullable string)
+   ,Пробіли у Name,,TRUE,data/cats/cat.1.jpg,400,Негатив/Name лише з пробілів → 400 (Required тримить рядок перед перевіркою)
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,Задовгий Name (300 символів),,TRUE,data/cats/cat.1.jpg,400,Finding/Name 300 символів прийнято — немає maxLength
 Dept Bad IsActive,Невалідний IsActive,,notbool,data/cats/cat.1.jpg,400,Негатив/IsActive=notbool → 400 (помилка binding bool)
-Dept Valid Head,HeadId = створений Viddil,VALID,true,data/cats/cat.1.jpg,204,"Позитив/Валідний HeadId (Team Viddil, створений у prereq)"
-Dept Bad Head,HeadId неіснуючий,99999,true,data/cats/cat.1.jpg,400,Негатив/HeadId не існує → 400 (Head must be a Team member with Type = Viddil)
-Dept Inactive,IsActive=false,,false,data/cats/cat.1.jpg,204,Гранично/IsActive=false
+Dept Valid Head,HeadId = створений Viddil,VALID,TRUE,data/cats/cat.1.jpg,204,"Позитив/Валідний HeadId (Team Viddil, створений у prereq)"
+Dept Bad Head,HeadId неіснуючий,99999,TRUE,data/cats/cat.1.jpg,400,Негатив/HeadId не існує → 400 (Head must be a Team member with Type = Viddil)
+Dept Inactive,IsActive=false,,FALSE,data/cats/cat.1.jpg,204,Гранично/IsActive=false

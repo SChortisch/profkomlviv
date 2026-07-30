@@ -30,22 +30,21 @@
 Функціональні DDT (перевіряють точний HTTP-код зі стовпця `Expected result`):
 
 ```
-newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "Create department DDT" -d "DDT/DDT Department/ddt_create_department.csv" --env-var ddt_admin_pass=<pass>
+newman run "Newman DDT Department.postman_collection.json" --folder "Create department DDT" -d "ddt_create_department.csv" 
 
-newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "Edit department DDT" -d "DDT/DDT Department/ddt_edit_department.csv" --env-var ddt_admin_pass=<pass> --env-var dep_target_id=<ID>
+newman run "Newman DDT Department.postman_collection.json" --folder "Edit department DDT" -d "ddt_edit_department.csv" 
 
-newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "Delete department DDT" -d "DDT/DDT Department/ddt_delete_department.csv" --env-var ddt_admin_pass=<pass> --env-var dep_target_id=<ID>
-```
+newman run "Newman DDT Department.postman_collection.json" --folder "Delete department DDT" -d "ddt_delete_department.csv" ```
 
 Security DDT (SQL-ін'єкції, XSS, порожній рядок, довжина; правило: будь-яка
 відповідь **2xx = провал тесту**):
 
 ```
-newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Create department" -d "DDT/DDT Department/SQL_XSS_create_department.csv" --env-var ddt_admin_pass=<pass>
+newman run "Newman DDT Department.postman_collection.json" --folder "SQL_XSS Create department" -d SQL_XSS_create_department.csv"
 
-newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Edit department" -d "DDT/DDT Department/SQL_XSS_edit_department.csv" --env-var ddt_admin_pass=<pass> --env-var dep_target_id=<ID>
+newman run "Newman DDT Department.postman_collection.json" --folder "SQL_XSS Edit department" -d "SQL_XSS_edit_department.csv"
 
-newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Delete department" -d "DDT/DDT Department/SQL_XSS_delete_department.csv" --env-var ddt_admin_pass=<pass>
+newman run "DDT/DDT JSONS/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Delete department" -d "SQL_XSS_delete_department.csv"
 ```
 
 ## Прибирання

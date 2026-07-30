@@ -1,65 +1,191 @@
-# DDT / Newman — Profkom Admin API
+# DDT / Newman — команди запуску
 
-Дві окремі колекції (у корені `Sprint4/`):
+Запускати **з теки `Sprint4`** (містить `DDT/` і `data/`) — інакше не зрезолвляться
+шляхи до файлів із CSV.
 
+Логін адміна — у `DDT/ddt.postman_environment.json`, підключений через `-e` у кожній
+команді. Якщо логін віддає `401` (паролі мутують прогони `Edit password DDT`),
+оновіть там `ddt_admin_pass` — це полагодить усі набори одразу.
 
-Перед першим запуском переконайтесь, що бекенд піднятий на `http://localhost:8080`
-і в базі є seed-адміни з `DbInitializer.cs` (зокрема `admin@gmail.com` / `@Admin123` —
-ці креди використовуються для прихованого службового логіну в DDT-запитах, що
-потребують авторизації).
+`<ID>` — id наперед створеного об'єкта: chaining у колекціях немає, тож ціль для
+update/delete передається ззовні.
 
-## Передумова для edit-сегментів
+## DDT Admin — `/api/Admin`
 
-`Edit password DDT` та `SQL_XSS Edit password` редагують пароль конкретного,
-наперед відомого адміна (без chaining немає кроку "спочатку створити"). Перед
-запуском цих двох команд виставте колекційну змінну `edit_target_id` на id
-одноразового тестового адміна (наприклад, створеного вручну через
-"Postman GUI" або через `Create admin DDT`):
+Функціональні:
 
 ```
-npx newman run "Newman DDT.postman_collection.json" ... --env-var edit_target_id=<ID>
+newman run "DDT/DDT Admin/Newman DDT.postman_collection.json" --folder "Login DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Admin/ddt_login.csv"
+
+newman run "DDT/DDT Admin/Newman DDT.postman_collection.json" --folder "Create admin DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Admin/ddt_create_admin.csv"
+
+newman run "DDT/DDT Admin/Newman DDT.postman_collection.json" --folder "Edit password DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Admin/ddt_edit_password.csv" --env-var edit_target_id=<ID>
 ```
 
-## Команди
-
-Функціональні DDT-сценарії (перевіряють `Expected result` — точний HTTP-код):
+Security:
 
 ```
-npx newman run "Newman DDT.postman_collection.json" --folder "Login DDT" -d "DDT/ddt_login.csv"
+newman run "DDT/DDT Admin/Newman DDT.postman_collection.json" --folder "SQL_XSS Login" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Admin/SQL_XSS_login.csv"
 
-npx newman run "Newman DDT.postman_collection.json" --folder "Create admin DDT" -d "DDT/ddt_create_admin.csv"
+newman run "DDT/DDT Admin/Newman DDT.postman_collection.json" --folder "SQL_XSS Create admin" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Admin/SQL_XSS_create_admin.csv"
 
-npx newman run "Newman DDT.postman_collection.json" --folder "Edit password DDT" -d "DDT/ddt_edit_password.csv" --env-var edit_target_id=<ID>
+newman run "DDT/DDT Admin/Newman DDT.postman_collection.json" --folder "SQL_XSS Edit password" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Admin/SQL_XSS_edit_password.csv" --env-var edit_target_id=<ID>
 ```
 
-Security-сценарії (SQL-ін'єкції, XSS, порожній рядок, довжина >80 символів;
-правило: будь-яка відповідь 2xx = провал тесту):
+## DDT Department — `/api/departments`
+
+Функціональні:
 
 ```
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Login" -d "DDT/SQL_XSS_login.csv"
+newman run "DDT/DDT Department/Newman DDT Department.postman_collection.json" --folder "Create department DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Department/ddt_create_department.csv"
 
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Create admin" -d "DDT/SQL_XSS_create_admin.csv"
+newman run "DDT/DDT Department/Newman DDT Department.postman_collection.json" --folder "Edit department DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Department/ddt_edit_department.csv" --env-var dep_target_id=<ID>
 
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Edit password" -d "DDT/SQL_XSS_edit_password.csv" --env-var edit_target_id=<ID>
+newman run "DDT/DDT Department/Newman DDT Department.postman_collection.json" --folder "Delete department DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Department/ddt_delete_department.csv" --env-var dep_target_id=<ID>
 ```
 
-`ddt_create_admin.csv` розрахований на одноразовий прогін (username-значення
-статичні, не перегенеровуються) — повторний прогін без очищення БД поверне
-`400` замість `200` на позитивному рядку через колізію унікальності username.
+Security:
 
-## Відомі знахідки (не помилки тестів — реальна поведінка бекенду)
+```
+newman run "DDT/DDT Department/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Create department" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Department/SQL_XSS_create_department.csv"
 
-- **Регістр username у логіні.** MySQL/MariaDB за замовчуванням використовує
-  регістронезалежну collation, тож `ADMIN@GMAIL.COM` логіниться так само, як
-  `admin@gmail.com` — рядок у `ddt_login.csv` очікує `200`, а не `401`.
-- **`AdminController.Create` не валідує формат `username`.** Перевіряються лише
-  унікальність та надійність пароля. Тому кілька рядків у
-  `SQL_XSS_create_admin.csv`, що цілять у поле `username` (SQL-ін'єкція, XSS,
-  порожній рядок, довжина >80), швидше за все **впадуть** (поверне `200`
-  замість очікуваного відхилення) проти поточного бекенду — це задокументована
-  прогалина у вхідній валідації, а не хиба тесту.
-- **Password-поле легітимно приймає спецсимволи.** У `SQL_XSS_edit_password.csv`
-  рядок з payload `' OR '1'='1' --` формально задовольняє regex надійності
-  пароля (`AdminController.IsValidPassword`) і може бути прийнятий як звичайний
-  новий пароль — це не SQL-ін'єкція (EF Core параметризує запити), а очікуваний
-  побічний ефект того, що паролям дозволені спецсимволи.
+newman run "DDT/DDT Department/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Edit department" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Department/SQL_XSS_edit_department.csv" --env-var dep_target_id=<ID>
+
+newman run "DDT/DDT Department/Newman DDT Department.postman_collection.json" --folder "SQL_XSS Delete department" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Department/SQL_XSS_delete_department.csv"
+```
+
+## DDT Documents — `/api/documents`
+
+Функціональні:
+
+```
+newman run "DDT/DDT Documents/Newman DDT.postman_collection.json" --folder "Create document DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Documents/ddt_create_document.csv"
+
+newman run "DDT/DDT Documents/Newman DDT.postman_collection.json" --folder "Update document DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Documents/ddt_update_document.csv" --env-var doc_target_id=<ID>
+
+newman run "DDT/DDT Documents/Newman DDT.postman_collection.json" --folder "Delete document DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Documents/ddt_delete_document.csv" --env-var doc_target_id=<ID>
+```
+
+Security:
+
+```
+newman run "DDT/DDT Documents/Newman DDT.postman_collection.json" --folder "SQL_XSS Create document" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Documents/SQL_XSS_create_document.csv"
+
+newman run "DDT/DDT Documents/Newman DDT.postman_collection.json" --folder "SQL_XSS Update document" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Documents/SQL_XSS_update_document.csv" --env-var doc_target_id=<ID>
+
+newman run "DDT/DDT Documents/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete document" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Documents/SQL_XSS_delete_document.csv"
+```
+
+## DDT Events — `/api/events`
+
+Функціональні:
+
+```
+newman run "DDT/DDT Events/Newman DDT.postman_collection.json" --folder "Create event DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Events/ddt_create_event.csv"
+
+newman run "DDT/DDT Events/Newman DDT.postman_collection.json" --folder "Update event DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Events/ddt_update_event.csv" --env-var event_target_id=<ID>
+
+newman run "DDT/DDT Events/Newman DDT.postman_collection.json" --folder "Delete event DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Events/ddt_delete_event.csv" --env-var event_target_id=<ID>
+```
+
+Security:
+
+```
+newman run "DDT/DDT Events/Newman DDT.postman_collection.json" --folder "SQL_XSS Create event" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Events/SQL_XSS_create_event.csv"
+
+newman run "DDT/DDT Events/Newman DDT.postman_collection.json" --folder "SQL_XSS Update event" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Events/SQL_XSS_update_event.csv" --env-var event_target_id=<ID>
+
+newman run "DDT/DDT Events/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete event" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Events/SQL_XSS_delete_event.csv"
+```
+
+## DDT Faculty — `/api/faculties`
+
+Функціональні:
+
+```
+newman run "DDT/DDT Faculty/Newman DDT.postman_collection.json" --folder "Create faculty DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Faculty/ddt_create_faculty.csv"
+
+newman run "DDT/DDT Faculty/Newman DDT.postman_collection.json" --folder "Update faculty DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Faculty/ddt_update_faculty.csv" --env-var faculty_target_id=<ID>
+
+newman run "DDT/DDT Faculty/Newman DDT.postman_collection.json" --folder "Delete faculty DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Faculty/ddt_delete_faculty.csv" --env-var faculty_target_id=<ID>
+```
+
+Security:
+
+```
+newman run "DDT/DDT Faculty/Newman DDT.postman_collection.json" --folder "SQL_XSS Create faculty" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Faculty/SQL_XSS_create_faculty.csv"
+
+newman run "DDT/DDT Faculty/Newman DDT.postman_collection.json" --folder "SQL_XSS Update faculty" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Faculty/SQL_XSS_update_faculty.csv" --env-var faculty_target_id=<ID>
+
+newman run "DDT/DDT Faculty/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete faculty" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Faculty/SQL_XSS_delete_faculty.csv"
+```
+
+## DDT News — `/api/news`
+
+Функціональні:
+
+```
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "Create news DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/ddt_create_news.csv"
+
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "Update news DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/ddt_update_news.csv" --env-var news_target_id=<ID>
+
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "Delete news DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/ddt_delete_news.csv" --env-var news_target_id=<ID>
+
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "Delete news image DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/ddt_delete_news_image.csv" --env-var news_image_target_id=<IMAGE_ID>
+```
+
+Security:
+
+```
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "SQL_XSS Create news" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/SQL_XSS_create_news.csv"
+
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "SQL_XSS Update news" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/SQL_XSS_update_news.csv" --env-var news_target_id=<ID>
+
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete news" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/SQL_XSS_delete_news.csv"
+
+newman run "DDT/DDT News/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete news image" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT News/SQL_XSS_delete_news_image.csv"
+```
+
+## DDT Team — `/api/Team`
+
+Функціональні:
+
+```
+newman run "DDT/DDT Team/Newman DDT.postman_collection.json" --folder "Create team DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Team/ddt_create_team.csv"
+
+newman run "DDT/DDT Team/Newman DDT.postman_collection.json" --folder "Update team DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Team/ddt_update_team.csv" --env-var team_target_id=<ID>
+
+newman run "DDT/DDT Team/Newman DDT.postman_collection.json" --folder "Delete team DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Team/ddt_delete_team.csv" --env-var team_target_id=<ID>
+```
+
+Security:
+
+```
+newman run "DDT/DDT Team/Newman DDT.postman_collection.json" --folder "SQL_XSS Create team" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Team/SQL_XSS_create_team.csv"
+
+newman run "DDT/DDT Team/Newman DDT.postman_collection.json" --folder "SQL_XSS Update team" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Team/SQL_XSS_update_team.csv" --env-var team_target_id=<ID>
+
+newman run "DDT/DDT Team/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete team" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Team/SQL_XSS_delete_team.csv"
+```
+
+## DDT Unit — `/api/units`
+
+Функціональні:
+
+```
+newman run "DDT/DDT Unit/Newman DDT.postman_collection.json" --folder "Create unit DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Unit/ddt_create_unit.csv"
+
+newman run "DDT/DDT Unit/Newman DDT.postman_collection.json" --folder "Update unit DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Unit/ddt_update_unit.csv" --env-var unit_target_id=<ID>
+
+newman run "DDT/DDT Unit/Newman DDT.postman_collection.json" --folder "Delete unit DDT" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Unit/ddt_delete_unit.csv" --env-var unit_target_id=<ID>
+```
+
+Security:
+
+```
+newman run "DDT/DDT Unit/Newman DDT.postman_collection.json" --folder "SQL_XSS Create unit" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Unit/SQL_XSS_create_unit.csv"
+
+newman run "DDT/DDT Unit/Newman DDT.postman_collection.json" --folder "SQL_XSS Update unit" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Unit/SQL_XSS_update_unit.csv" --env-var unit_target_id=<ID>
+
+newman run "DDT/DDT Unit/Newman DDT.postman_collection.json" --folder "SQL_XSS Delete unit" -e "DDT/ddt.postman_environment.json" -d "DDT/DDT Unit/SQL_XSS_delete_unit.csv"
+```

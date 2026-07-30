@@ -1,13 +1,15 @@
-```
-npx newman run "Newman DDT.postman_collection.json" --folder "Create document DDT" -d "ddt_create_document.csv"
+# DDT / Newman — Document API
 
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Create document" -d "SQL_XSS_create_document.csv"
+Датасети та Newman-колекція для data-driven тестування `/api/documents`.
 
-npx newman run "Newman DDT.postman_collection.json" --folder "Update document DDT" -d "ddt_update_document.csv" --env-var doc_target_id=<ID>
+**Команди запуску — у спільному [`DDT/README.md`](../README.md#ddt-documents--apidocuments).**
+Там же передумови, авторизація (спільний env-файл) і змінні під конкретний прогін.
 
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Update document" -d "SQL_XSS_update_document.csv" --env-var doc_target_id=<ID>
+## Що в теці
 
-npx newman run "Newman DDT.postman_collection.json" --folder "Delete document DDT" -d "ddt_delete_document.csv" --env-var doc_target_id=<ID>
-
-npx newman run "Newman DDT.postman_collection.json" --folder "SQL_XSS Delete document" -d "SQL_XSS_delete_document.csv"
-```
+- `Newman DDT.postman_collection.json` — колекція, шість самодостатніх папок
+  (create / update / delete та їхні SQL_XSS-двійники), без chaining.
+- `ddt_*.csv` — функціональні датасети (стовпець `Expected result` — очікуваний
+  HTTP-код, `scenario` — опис рядка).
+- `SQL_XSS_*.csv` — security-датасети (`category`, `target_field`, `payload`;
+  правило перевірки: будь-яка відповідь `2xx` = провал).
