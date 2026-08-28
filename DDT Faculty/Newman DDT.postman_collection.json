@@ -48,7 +48,7 @@
                   "if (imageUrl !== \"\") pm.request.body.formdata.add({ key: \"ImageUrl\", value: imageUrl, type: \"text\" });",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -114,12 +114,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/faculties",
+              "raw": "http://localhost:8081/api/faculties",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "faculties"
@@ -176,7 +176,7 @@
                   "pm.variables.set(\"resolved_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -242,12 +242,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/faculties/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "faculties",
@@ -276,7 +276,7 @@
                   "pm.variables.set(\"resolved_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -338,12 +338,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/faculties/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "faculties",
@@ -397,7 +397,7 @@
                   "}",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -456,12 +456,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/faculties",
+              "raw": "http://localhost:8081/api/faculties",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "faculties"
@@ -517,7 +517,7 @@
                   "}",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -576,12 +576,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/faculties/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "faculties",
@@ -608,7 +608,7 @@
                   "pm.variables.set(\"resolved_id\", payload);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -663,12 +663,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/faculties/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/faculties/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "faculties",

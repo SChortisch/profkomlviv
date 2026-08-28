@@ -1,4 +1,4 @@
-dd{
+{
   "info": {
     "_postman_id": "a1000000-0000-4000-8000-000000000002",
     "name": "Newman DDT",
@@ -42,10 +42,10 @@ dd{
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "http://localhost:8080/api/Admin/login",
+              "raw": "http://localhost:8081/api/Admin/login",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "Admin", "login"]
             }
           },
@@ -65,7 +65,7 @@ dd{
                 "type": "text/javascript",
                 "exec": [
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -114,10 +114,10 @@ dd{
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "http://localhost:8080/api/Admin/create",
+              "raw": "http://localhost:8081/api/Admin/create",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "Admin", "create"]
             }
           },
@@ -137,7 +137,7 @@ dd{
                 "type": "text/javascript",
                 "exec": [
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -186,10 +186,10 @@ dd{
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "http://localhost:8080/api/Admin/edit/{{edit_target_id}}",
+              "raw": "http://localhost:8081/api/Admin/edit/{{edit_target_id}}",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "Admin", "edit", "{{edit_target_id}}"]
             }
           },
@@ -254,10 +254,10 @@ dd{
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "http://localhost:8080/api/Admin/login",
+              "raw": "http://localhost:8081/api/Admin/login",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "Admin", "login"]
             }
           },
@@ -277,7 +277,7 @@ dd{
                 "type": "text/javascript",
                 "exec": [
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -340,10 +340,10 @@ dd{
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "http://localhost:8080/api/Admin/create",
+              "raw": "http://localhost:8081/api/Admin/create",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "Admin", "create"]
             }
           },
@@ -363,7 +363,7 @@ dd{
                 "type": "text/javascript",
                 "exec": [
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -413,10 +413,10 @@ dd{
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "http://localhost:8080/api/Admin/edit/{{edit_target_id}}",
+              "raw": "http://localhost:8081/api/Admin/edit/{{edit_target_id}}",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "8080",
+              "port": "8081",
               "path": ["api", "Admin", "edit", "{{edit_target_id}}"]
             }
           },

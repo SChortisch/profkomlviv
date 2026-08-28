@@ -36,7 +36,7 @@
                   "}",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -102,12 +102,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/News",
+              "raw": "http://localhost:8081/api/News",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News"
@@ -152,7 +152,7 @@
                   "pm.variables.set(\"resolved_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -218,12 +218,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/News/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News",
@@ -252,7 +252,7 @@
                   "pm.variables.set(\"resolved_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -314,12 +314,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/News/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News",
@@ -348,7 +348,7 @@
                   "pm.variables.set(\"resolved_image_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -410,12 +410,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/News/image/{{resolved_image_id}}",
+              "raw": "http://localhost:8081/api/News/image/{{resolved_image_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News",
@@ -457,7 +457,7 @@
                   "pm.request.body.formdata.add({ key: \"Content\", value: val(\"Content\"), type: \"text\" });",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -516,12 +516,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/News",
+              "raw": "http://localhost:8081/api/News",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News"
@@ -564,7 +564,7 @@
                   "pm.request.body.formdata.add({ key: \"Content\", value: val(\"Content\"), type: \"text\" });",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -623,12 +623,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/News/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News",
@@ -655,7 +655,7 @@
                   "pm.variables.set(\"resolved_id\", payload);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -710,12 +710,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/News/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/News/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News",
@@ -742,7 +742,7 @@
                   "pm.variables.set(\"resolved_image_id\", payload);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -797,12 +797,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/News/image/{{resolved_image_id}}",
+              "raw": "http://localhost:8081/api/News/image/{{resolved_image_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "News",

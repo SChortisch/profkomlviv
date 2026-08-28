@@ -30,7 +30,7 @@
                   "}",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -96,12 +96,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/documents",
+              "raw": "http://localhost:8081/api/documents",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "documents"
@@ -140,7 +140,7 @@
                   "pm.variables.set(\"resolved_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -206,12 +206,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/documents/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/documents/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "documents",
@@ -240,7 +240,7 @@
                   "pm.variables.set(\"resolved_id\", targetId);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -302,12 +302,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/documents/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/documents/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "documents",
@@ -345,7 +345,7 @@
                   "pm.request.body.formdata.add({ key: \"File\", src: fixedFile, type: \"file\" });",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -404,12 +404,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/documents",
+              "raw": "http://localhost:8081/api/documents",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "documents"
@@ -444,7 +444,7 @@
                   "pm.request.body.formdata.add({ key: \"Description\", value: description, type: \"text\" });",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -503,12 +503,12 @@
               "formdata": []
             },
             "url": {
-              "raw": "http://localhost:8080/api/documents/{{doc_target_id}}",
+              "raw": "http://localhost:8081/api/documents/{{doc_target_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "documents",
@@ -535,7 +535,7 @@
                   "pm.variables.set(\"resolved_id\", payload);",
                   "",
                   "pm.sendRequest({",
-                  "    url: \"http://localhost:8080/api/Admin/login\",",
+                  "    url: \"http://localhost:8081/api/Admin/login\",",
                   "    method: \"POST\",",
                   "    header: { \"Content-Type\": \"application/json\" },",
                   "    body: {",
@@ -590,12 +590,12 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/api/documents/{{resolved_id}}",
+              "raw": "http://localhost:8081/api/documents/{{resolved_id}}",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
-              "port": "8080",
+              "port": "8081",
               "path": [
                 "api",
                 "documents",
