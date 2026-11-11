@@ -1,0 +1,51 @@
+{
+  "info": {
+    "name": "Блок 14 · база в базовому стані",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "3c96db1d-f425-541a-849f-02d8707920cd"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Відділів рівно один",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/departments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "departments"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "console.log(\"Відділів:\", pm.response.json().length);",
+              "pm.test(\"Після прогону відділ лише базовий\", () => pm.expect(pm.response.json().length).to.eql(1));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

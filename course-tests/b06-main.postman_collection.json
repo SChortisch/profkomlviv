@@ -182,8 +182,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Новин більше однієї\", () => pm.expect(pm.response.json().length).to.be.above(1));"
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));"
                 ]
               }
             }

@@ -1,0 +1,76 @@
+{
+  "info": {
+    "name": "Блок 14 · прибирання після DDT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "c051f07b-6557-500f-871d-583f614b579f"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Прибрати відділи DDT",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/departments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "departments"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ids = pm.response.json().filter(d => d.name === \"Відділ DDT B14\").map(d => d.id);",
+              "console.log(\"Прибираю відділів:\", ids.length);",
+              "ids.forEach(id => pm.sendRequest({ url: pm.environment.get(\"baseUrl\") + \"/api/departments/\" + id, method: \"DELETE\", header: { Authorization: \"Bearer \" + pm.environment.get(\"token\") } },",
+              "    (e, r) => console.log(\"  DELETE\", id, \"→\", r.code)));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.environment.get(\"token\")) {",
+          "    pm.sendRequest({",
+          "        url: pm.environment.get(\"baseUrl\") + \"/api/Admin/login\",",
+          "        method: \"POST\",",
+          "        header: { \"Content-Type\": \"application/json\" },",
+          "        body: { mode: \"raw\", raw: JSON.stringify({",
+          "            username: pm.environment.get(\"admin_username\"),",
+          "            password: pm.environment.get(\"admin_password\") }) }",
+          "    }, (err, res) => {",
+          "        pm.environment.set(\"token\", res.json().token);",
+          "        console.log(\"Автовхід перед «\" + pm.info.requestName + \"»:\", res.code);",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

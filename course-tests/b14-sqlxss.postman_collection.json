@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "Блок 14 · SQL_XSS для відділів (нічний прогін)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "e6f03a16-936f-5c05-b6c5-e573e20e850b"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "SQL_XSS Create department",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/departments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "departments"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "Name",
+              "value": "{{sqlxss_name}}",
+              "type": "text"
+            },
+            {
+              "key": "Description",
+              "value": "{{sqlxss_description}}",
+              "type": "text"
+            },
+            {
+              "key": "LogoUrl",
+              "value": "{{sqlxss_logourl}}",
+              "type": "text"
+            },
+            {
+              "key": "IsActive",
+              "value": "true",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const target = pm.iterationData.get(\"target_field\");",
+              "const payload = pm.iterationData.get(\"payload\");",
+              "pm.variables.set(\"sqlxss_name\", target === \"Name\" ? payload : \"SQLXSS Dept\");",
+              "pm.variables.set(\"sqlxss_description\", target === \"Description\" ? payload : \"SQLXSS test description\");",
+              "pm.variables.set(\"sqlxss_logourl\", target === \"LogoUrl\" ? payload : \"\");"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const category = pm.iterationData.get(\"category\");",
+              "pm.test(`[${category}] payload rejected, response is not 2xx`, function () {",
+              "    pm.expect(pm.response.code, `payload: ${pm.iterationData.get(\"payload\")}`).to.not.be.within(200, 299);",
+              "});",
+              "if (pm.response.code === 201) pm.sendRequest({ url: pm.environment.get(\"baseUrl\") + \"/api/departments/\" + pm.response.json().id, method: \"DELETE\", header: { Authorization: \"Bearer \" + pm.environment.get(\"token\") } }, () => {});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.environment.get(\"token\")) {",
+          "    pm.sendRequest({",
+          "        url: pm.environment.get(\"baseUrl\") + \"/api/Admin/login\",",
+          "        method: \"POST\",",
+          "        header: { \"Content-Type\": \"application/json\" },",
+          "        body: { mode: \"raw\", raw: JSON.stringify({",
+          "            username: pm.environment.get(\"admin_username\"),",
+          "            password: pm.environment.get(\"admin_password\") }) }",
+          "    }, (err, res) => {",
+          "        pm.environment.set(\"token\", res.json().token);",
+          "        console.log(\"Автовхід перед «\" + pm.info.requestName + \"»:\", res.code);",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

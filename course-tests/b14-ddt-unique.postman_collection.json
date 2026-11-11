@@ -1,0 +1,118 @@
+{
+  "info": {
+    "name": "Блок 14 · DDT: відділ з унікальною назвою",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "1deef15f-ebf1-588b-ae9a-c48745daef31"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Створити відділ DDT",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/departments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "departments"
+          ]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "Name",
+              "value": "Відділ DDT B14",
+              "type": "text"
+            },
+            {
+              "key": "IsActive",
+              "value": "true",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Створено: 201\", () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Назва унікальна",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/departments",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "departments"
+          ]
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const same = pm.response.json().filter(d => d.name === \"Відділ DDT B14\").length;",
+              "console.log(\"Відділів «Відділ DDT B14»:\", same);",
+              "pm.test(\"Відділ «Відділ DDT B14» один\", () => pm.expect(same).to.eql(1));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.environment.get(\"token\")) {",
+          "    pm.sendRequest({",
+          "        url: pm.environment.get(\"baseUrl\") + \"/api/Admin/login\",",
+          "        method: \"POST\",",
+          "        header: { \"Content-Type\": \"application/json\" },",
+          "        body: { mode: \"raw\", raw: JSON.stringify({",
+          "            username: pm.environment.get(\"admin_username\"),",
+          "            password: pm.environment.get(\"admin_password\") }) }",
+          "    }, (err, res) => {",
+          "        pm.environment.set(\"token\", res.json().token);",
+          "        console.log(\"Автовхід перед «\" + pm.info.requestName + \"»:\", res.code);",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+}
