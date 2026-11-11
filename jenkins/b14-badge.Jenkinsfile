@@ -1,4 +1,5 @@
-// 14.3 C004: крок addShortText з плагіна badge — працює лише в образі, перезібраному з цим плагіном.
+// 14.3 C004: крок addBadge з плагіна badge — працює лише в образі, перезібраному з цим плагіном.
+// У badge 3.x кроку addShortText уже немає; форму addBadge підказав Snippet Generator.
 pipeline {
     agent any
     environment { BASE_URL = 'http://host.docker.internal:8082' }
@@ -12,7 +13,7 @@ pipeline {
     post {
         always {
             junit 'reports/smoke.xml'
-            addShortText(text: "smoke: ${currentBuild.currentResult}", background: 'lightyellow', border: 1)
+            addBadge(text: "smoke: ${currentBuild.currentResult}", style: 'background: lightyellow; border: 1px solid')
         }
     }
 }
